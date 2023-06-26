@@ -1,11 +1,10 @@
 use cosmwasm_bignumber::{Decimal256, Uint256};
 use cosmwasm_std::Uint128;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
+use cosmwasm_schema::{cw_serde, QueryResponses};
 
 use crate::tokens::{TokensHuman};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct InstantiateMsg {
     /// Initial owner address
     pub owner_addr: String,
@@ -18,8 +17,7 @@ pub struct InstantiateMsg {
     pub redeem_fee: Decimal256,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum ExecuteMsg {
     UpdateConfig {
         owner_addr: Option<String>,
@@ -79,35 +77,34 @@ pub enum ExecuteMsg {
     },
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum Cw20HookMsg {}
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(ConfigResponse)]
     Config {},
-
+    #[returns(LoanInfoResponse)]
     LoanInfo { minter: String },
-
+    #[returns(WhitelistElemResponse)]
     CollateralElem { collateral: String },
-
+    #[returns(WhitelistResponse)]
     Whitelist {  
         collateral_contract: Option<String>,
         start_after: Option<String>,
         limit: Option<u32>,
     },
-
+    #[returns(MinterCollateralResponse)]
     MinterCollateral {
         minter: String,
     }
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub struct MigrateMsg {}
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct ConfigResponse {
     pub owner_add: String,
     pub oracle_contract: String,
@@ -117,7 +114,7 @@ pub struct ConfigResponse {
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct LoanInfoResponse {
     pub minter: String,
     pub loans: Uint256,
@@ -125,14 +122,14 @@ pub struct LoanInfoResponse {
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct CollateralsResponse {
     pub minter: String,
     pub collaterals: TokensHuman, // <(Collateral Token, Amount)>
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct WhitelistElemResponse {
     pub name: String,
     pub symbol: String,
@@ -142,13 +139,13 @@ pub struct WhitelistElemResponse {
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct WhitelistResponse {
     pub elems: Vec<WhitelistElemResponse>,
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct MinterCollateralResponse {
     pub collaterals: TokensHuman,
 }

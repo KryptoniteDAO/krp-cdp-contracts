@@ -40,6 +40,6 @@ thiserror = "1.0.37"
 cosmwasm-bignumber =  { path = "../../packages/bignumber", version = "3.0.0"}
 cosmwasm-storage = { version = "1.0.0" }
 sei-cosmwasm = { version = "0.4.10" }
+cosmwasm-schema = { version = "1.0.10" }
 
 [dev-dependencies]
-cosmwasm-schema = { version = "1.0.0" }

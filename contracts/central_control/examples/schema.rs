@@ -11,31 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-use std::env::current_dir;
-use std::fs::create_dir_all;
-
+use cosmwasm_schema::write_api;
 
 use cdp::central_control::{
-    InstantiateMsg, ExecuteMsg, QueryMsg, LoanInfoResponse, ConfigResponse, Cw20HookMsg, 
-    CollateralsResponse, WhitelistElemResponse, WhitelistResponse, MinterCollateralResponse
+    InstantiateMsg, ExecuteMsg, QueryMsg,
 }; 
-use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
 
 fn main() {
-    let mut out_dir = current_dir().unwrap();
-    out_dir.push("schema");
-    create_dir_all(&out_dir).unwrap();
-    remove_schemas(&out_dir).unwrap();
-
-    export_schema(&schema_for!(InstantiateMsg), &out_dir);
-    export_schema(&schema_for!(ExecuteMsg), &out_dir);
-    export_schema(&schema_for!(QueryMsg), &out_dir);
-    export_schema(&schema_for!(ConfigResponse), &out_dir);
-    export_schema(&schema_for!(LoanInfoResponse), &out_dir);
-    export_schema(&schema_for!(Cw20HookMsg), &out_dir);
-    export_schema(&schema_for!(CollateralsResponse), &out_dir);
-    export_schema(&schema_for!(WhitelistElemResponse), &out_dir);
-    export_schema(&schema_for!(WhitelistResponse), &out_dir);
-    export_schema(&schema_for!(MinterCollateralResponse), &out_dir);
+    write_api! {
+        instantiate: InstantiateMsg,
+        execute: ExecuteMsg,
+        query: QueryMsg,
+        // migrate: MigrateMsg
+    }
 }

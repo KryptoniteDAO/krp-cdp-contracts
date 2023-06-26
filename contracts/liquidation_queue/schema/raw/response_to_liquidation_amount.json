@@ -23,6 +23,7 @@
       }
     }
   },
+  "additionalProperties": false,
   "definitions": {
     "Uint256": {
       "type": "string"

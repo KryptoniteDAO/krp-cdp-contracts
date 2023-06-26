@@ -10,10 +10,10 @@ use std::vec;
 
 use crate::error::ContractError;
 use crate::state::{
-    read_config, read_state, store_config, store_state, Config, ConfigResponse, State,
+    read_config, read_state, store_config, store_state, Config, State,
 };
 use cdp::central_control::ExecuteMsg as ControlExecuteMsg;
-use cdp::custody::{Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StateResponse};
+use cdp::custody::{Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StateResponse, ConfigResponse};
 use cdp::liquidation_queue::Cw20HookMsg as LiquidationCw20HookMsg;
 
 #[cfg_attr(not(feature = "library"), entry_point)]

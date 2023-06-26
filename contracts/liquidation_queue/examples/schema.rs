@@ -1,28 +1,13 @@
-use std::env::current_dir;
-use std::fs::create_dir_all;
-
-use cosmwasm_schema::{export_schema, remove_schemas, schema_for};
+use cosmwasm_schema::write_api;
 
 use cdp::liquidation_queue::{
-    BidPoolResponse, BidPoolsResponse, BidResponse, BidsResponse, CollateralInfoResponse,
-    ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, LiquidationAmountResponse, QueryMsg,
+   ExecuteMsg, InstantiateMsg, QueryMsg,
 };
 
 fn main() {
-    let mut out_dir = current_dir().unwrap();
-    out_dir.push("schema");
-    create_dir_all(&out_dir).unwrap();
-    remove_schemas(&out_dir).unwrap();
-
-    export_schema(&schema_for!(InstantiateMsg), &out_dir);
-    export_schema(&schema_for!(QueryMsg), &out_dir);
-    export_schema(&schema_for!(ExecuteMsg), &out_dir);
-    export_schema(&schema_for!(Cw20HookMsg), &out_dir);
-    export_schema(&schema_for!(ConfigResponse), &out_dir);
-    export_schema(&schema_for!(BidResponse), &out_dir);
-    export_schema(&schema_for!(BidsResponse), &out_dir);
-    export_schema(&schema_for!(LiquidationAmountResponse), &out_dir);
-    export_schema(&schema_for!(BidPoolResponse), &out_dir);
-    export_schema(&schema_for!(BidPoolsResponse), &out_dir);
-    export_schema(&schema_for!(CollateralInfoResponse), &out_dir);
+    write_api! {
+        instantiate: InstantiateMsg,
+        execute: ExecuteMsg,
+        query: QueryMsg,
+    }
 }

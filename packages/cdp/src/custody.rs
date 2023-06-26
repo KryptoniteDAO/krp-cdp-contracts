@@ -1,12 +1,10 @@
 use cosmwasm_bignumber::Uint256;
 use cosmwasm_std::{ Uint128};
 use cw20::Cw20ReceiveMsg;
-use schemars::JsonSchema;
-use serde::{Deserialize, Serialize};
-
+use cosmwasm_schema::{cw_serde,QueryResponses};
 use crate::tokens::{TokensHuman};
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct InstantiateMsg {
     /// Initial owner address
     pub owner_addr: String,
@@ -16,8 +14,7 @@ pub struct InstantiateMsg {
     pub liquidation_contract: String,
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum ExecuteMsg {
     UpdateConfig {
         owner_addr: Option<String>,
@@ -50,8 +47,7 @@ pub enum ExecuteMsg {
 
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub enum Cw20HookMsg {
     ///mint stable coin kUSD
     MintStableCoin {
@@ -62,27 +58,37 @@ pub enum Cw20HookMsg {
     DepositCollateral {},
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(ConfigResponse)]
     Config {},
+    #[returns(StateResponse)]
     State {},
 }
 
 // We define a custom struct for each query response
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+#[cw_serde]
 pub struct CollateralsResponse {
     pub borrower: String,
     pub collaterals: TokensHuman, // <(Collateral Token, Amount)>
 }
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub struct StateResponse {
     pub total_amount: Uint256,
 }
 
 
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-#[serde(rename_all = "snake_case")]
+#[cw_serde]
 pub struct MigrateMsg {}
+
+
+#[cw_serde]
+pub struct ConfigResponse {
+    pub owner_addr: String, 
+    pub control_contract: String,
+    pub pool_contract: String, 
+    pub collateral_contract: String,
+    pub liquidation_contract: String,
+}

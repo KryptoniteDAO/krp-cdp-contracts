@@ -1,0 +1,117 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "QueryMsg",
+  "oneOf": [
+    {
+      "type": "object",
+      "required": [
+        "config"
+      ],
+      "properties": {
+        "config": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "loan_info"
+      ],
+      "properties": {
+        "loan_info": {
+          "type": "object",
+          "required": [
+            "minter"
+          ],
+          "properties": {
+            "minter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "collateral_elem"
+      ],
+      "properties": {
+        "collateral_elem": {
+          "type": "object",
+          "required": [
+            "collateral"
+          ],
+          "properties": {
+            "collateral": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "whitelist"
+      ],
+      "properties": {
+        "whitelist": {
+          "type": "object",
+          "properties": {
+            "collateral_contract": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "limit": {
+              "type": [
+                "integer",
+                "null"
+              ],
+              "format": "uint32",
+              "minimum": 0.0
+            },
+            "start_after": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "minter_collateral"
+      ],
+      "properties": {
+        "minter_collateral": {
+          "type": "object",
+          "required": [
+            "minter"
+          ],
+          "properties": {
+            "minter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  ]
+}

@@ -28,17 +28,6 @@ pub struct State {
 }
 
 
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct ConfigResponse {
-    pub owner_addr: String, 
-    pub control_contract: String,
-    pub pool_contract: String, 
-    pub collateral_contract: String,
-    pub liquidation_contract: String,
-}
-
-
 pub fn store_config(storage: &mut dyn Storage, data: &Config) -> StdResult<()> {
     Singleton::new(storage, KEY_CONFIG).save(data)
 }

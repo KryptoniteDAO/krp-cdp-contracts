@@ -76,6 +76,7 @@ name = "cdp"
 version = "0.0.1"
 dependencies = [
  "cosmwasm-bignumber",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw20",

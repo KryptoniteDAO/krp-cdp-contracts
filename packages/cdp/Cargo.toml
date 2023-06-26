@@ -39,6 +39,8 @@ thiserror = "1.0.37"
 cosmwasm-storage = { version = "1.0.0" }
 cw20 = { version = "0.16.0" }
 cosmwasm-bignumber =  { path = "../../packages/bignumber", version = "3.0.0"}
+cosmwasm-schema = "1.1.10"
+
 
 [dev-dependencies]
 

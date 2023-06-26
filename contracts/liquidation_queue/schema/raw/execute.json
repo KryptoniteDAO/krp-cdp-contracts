@@ -33,6 +33,12 @@
                 }
               ]
             },
+            "control_contract": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "liquidation_threshold": {
               "anyOf": [
                 {
@@ -54,12 +60,6 @@
               ]
             },
             "oracle_contract": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "overseer": {
               "type": [
                 "string",
                 "null"
@@ -89,6 +89,12 @@
                 }
               ]
             },
+            "stable_denom": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "waiting_period": {
               "type": [
                 "integer",
@@ -97,7 +103,8 @@
               "format": "uint64",
               "minimum": 0.0
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -132,7 +139,8 @@
             "premium_rate_per_slot": {
               "$ref": "#/definitions/Decimal256"
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -170,7 +178,8 @@
               "format": "uint8",
               "minimum": 0.0
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -197,7 +206,8 @@
               "format": "uint8",
               "minimum": 0.0
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -228,7 +238,8 @@
             "bid_idx": {
               "$ref": "#/definitions/Uint128"
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -258,7 +269,8 @@
             "collateral_token": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -288,7 +300,8 @@
             "collateral_token": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
@@ -325,7 +338,8 @@
             "repay_address": {
               "type": "string"
             }
-          }
+          },
+          "additionalProperties": false
         }
       },
       "additionalProperties": false
