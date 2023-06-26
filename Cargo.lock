@@ -107,6 +107,7 @@ version = "0.0.1"
 dependencies = [
  "cdp",
  "cosmwasm-bignumber",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw20",
@@ -121,6 +122,7 @@ version = "0.0.1"
 dependencies = [
  "cdp",
  "cosmwasm-bignumber",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "cw20",
@@ -135,6 +137,7 @@ version = "0.0.1"
 dependencies = [
  "cdp",
  "cosmwasm-bignumber",
+ "cosmwasm-schema",
  "cosmwasm-std",
  "cosmwasm-storage",
  "schemars",

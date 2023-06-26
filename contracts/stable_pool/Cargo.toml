@@ -42,4 +42,4 @@ cosmwasm-storage = { version = "1.0.0" }
 sei-cosmwasm = { version = "0.4.10" }
 
 [dev-dependencies]
-
+cosmwasm-schema = { version = "1.0.0" }
