@@ -481,6 +481,41 @@
           }
         },
         "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "redemption_provider_list"
+        ],
+        "properties": {
+          "redemption_provider_list": {
+            "type": "object",
+            "properties": {
+              "limit": {
+                "type": [
+                  "integer",
+                  "null"
+                ],
+                "format": "uint32",
+                "minimum": 0.0
+              },
+              "minter": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "start_after": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
       }
     ]
   },
@@ -609,6 +644,48 @@
       },
       "additionalProperties": false,
       "definitions": {
+        "Uint256": {
+          "type": "string"
+        }
+      }
+    },
+    "redemption_provider_list": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RedemptionProviderListRespone",
+      "type": "object",
+      "required": [
+        "provider_list"
+      ],
+      "properties": {
+        "provider_list": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/MinterLoanResponse"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "definitions": {
+        "MinterLoanResponse": {
+          "type": "object",
+          "required": [
+            "is_redemption_provider",
+            "loans",
+            "minter"
+          ],
+          "properties": {
+            "is_redemption_provider": {
+              "type": "boolean"
+            },
+            "loans": {
+              "$ref": "#/definitions/Uint256"
+            },
+            "minter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
         "Uint256": {
           "type": "string"
         }
