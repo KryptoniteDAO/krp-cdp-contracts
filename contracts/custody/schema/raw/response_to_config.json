@@ -3,25 +3,23 @@
   "title": "ConfigResponse",
   "type": "object",
   "required": [
-    "custody_contract",
-    "epoch_period",
-    "oracle_contract",
-    "owner_add",
+    "collateral_contract",
+    "control_contract",
+    "liquidation_contract",
+    "owner_addr",
     "pool_contract"
   ],
   "properties": {
-    "custody_contract": {
+    "collateral_contract": {
       "type": "string"
     },
-    "epoch_period": {
-      "type": "integer",
-      "format": "uint64",
-      "minimum": 0.0
-    },
-    "oracle_contract": {
+    "control_contract": {
       "type": "string"
     },
-    "owner_add": {
+    "liquidation_contract": {
+      "type": "string"
+    },
+    "owner_addr": {
       "type": "string"
     },
     "pool_contract": {

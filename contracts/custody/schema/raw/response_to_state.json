@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "StateResponse",
+  "type": "object",
+  "required": [
+    "total_amount"
+  ],
+  "properties": {
+    "total_amount": {
+      "$ref": "#/definitions/Uint256"
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "Uint256": {
+      "type": "string"
+    }
+  }
+}
