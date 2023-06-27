@@ -351,8 +351,8 @@ async function main(): Promise<void> {
 
 
     ///migrate control contract
-    // controlCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_central_control.wasm");
-    // await migrateContract(RPC_ENDPOINT, wallet, controlAddress, controlCodeId, {}, "");
+    controlCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_central_control.wasm");
+    await migrateContract(RPC_ENDPOINT, wallet, controlAddress, controlCodeId, {}, "");
 
     // custodyCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_custody.wasm");
     // await migrateContract(RPC_ENDPOINT, wallet, custodyAddress, custodyCodeId, {}, "");
@@ -626,7 +626,8 @@ async function main(): Promise<void> {
 
     await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: {}});
 
-
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {collateral_available:{minter: account.address, collateral_contract: bSeiTokenAddress}} );
+    {"available_balance":"223116"}
 }
 
 main().catch(console.log);

@@ -147,6 +147,31 @@
         }
       },
       "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "collateral_available"
+      ],
+      "properties": {
+        "collateral_available": {
+          "type": "object",
+          "required": [
+            "collateral_contract",
+            "minter"
+          ],
+          "properties": {
+            "collateral_contract": {
+              "type": "string"
+            },
+            "minter": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
     }
   ]
 }

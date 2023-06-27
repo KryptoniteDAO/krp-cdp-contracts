@@ -105,6 +105,12 @@ pub enum QueryMsg {
         start_after: Option<String>,
         limit: Option<u32>,
     },
+
+    #[returns(CollateralAvailableRespone)]
+    CollateralAvailable {
+        minter: String,
+        collateral_contract: String,
+    },
 }
 
 #[cw_serde]
@@ -166,4 +172,10 @@ pub struct MinterLoanResponse {
 #[cw_serde]
 pub struct RedemptionProviderListRespone {
     pub provider_list: Vec<MinterLoanResponse>,
+}
+
+
+#[cw_serde]
+pub struct CollateralAvailableRespone {
+    pub available_balance: Uint128,
 }

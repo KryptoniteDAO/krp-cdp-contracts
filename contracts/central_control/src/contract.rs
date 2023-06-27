@@ -5,9 +5,9 @@ use crate::state::{
     store_whitelist_elem, Config, WhitelistElem,
 };
 use cdp::central_control::{
-    ConfigResponse, ExecuteMsg, InstantiateMsg, LoanInfoResponse, MigrateMsg,
-    MinterCollateralResponse, MinterLoanResponse, QueryMsg, RedemptionProviderListRespone,
-    WhitelistElemResponse, WhitelistResponse,
+    CollateralAvailableRespone, ConfigResponse, ExecuteMsg, InstantiateMsg, LoanInfoResponse,
+    MigrateMsg, MinterCollateralResponse, MinterLoanResponse, QueryMsg,
+    RedemptionProviderListRespone, WhitelistElemResponse, WhitelistResponse,
 };
 use cdp::handle::optional_addr_validate;
 use cdp::liquidation_queue::LiquidationAmountResponse;
@@ -47,6 +47,8 @@ pub fn instantiate(
 
     Ok(Response::default())
 }
+
+
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
@@ -202,6 +204,15 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             optional_addr_validate(deps.api, start_after)?,
             limit,
         )?),
+
+        QueryMsg::CollateralAvailable {
+            minter,
+            collateral_contract,
+        } => to_binary(&query_collateral_available(
+            deps,
+            deps.api.addr_validate(minter.as_str())?,
+            deps.api.addr_validate(collateral_contract.as_str())?,
+        )?),
     }
 }
 
@@ -278,6 +289,63 @@ pub fn liquidate_collateral(
                 pre_balance,
             })?,
         })))
+}
+
+pub fn query_collateral_available(
+    deps: Deps,
+    minter: Addr,
+    collateral_contract: Addr,
+) -> StdResult<CollateralAvailableRespone> {
+    let config = read_config(deps.storage)?;
+    let minter_raw = deps.api.addr_canonicalize(minter.as_str())?;
+    let minter_loan_info = read_minter_loan_info(deps.storage, &minter_raw)?;
+
+    let collateral_raw = deps.api.addr_canonicalize(collateral_contract.as_str())?;
+
+    let collaterals = read_collaterals(deps.storage, &minter_raw);
+    let mut max_loans_value = Uint256::zero();
+
+    let mut collateral_price = Decimal256::zero();
+    let mut collateral_max_ltv = Decimal256::zero();
+
+    let mut collateral_amount = Uint256::zero();
+    let multiply_ratio: Uint256 = Uint256::from(100_000_000u64);
+    
+    for collateral in collaterals {
+        let collateral_info = read_whitelist_elem(deps.storage, &collateral.0)?;
+        let price_resp = query_price(
+            deps,
+            deps.api.addr_humanize(&config.oracle_contract)?,
+            deps.api.addr_humanize(&collateral.0)?.to_string(),
+            "".to_string(),
+            None,
+        )?;
+        if collateral.0 == collateral_raw {
+            collateral_amount = collateral.1;
+            collateral_price = price_resp.emv_price;
+            collateral_max_ltv = collateral_info.max_ltv;
+        } else {
+            max_loans_value = collateral.1 * price_resp.emv_price * collateral_info.max_ltv;
+        }
+    }
+
+    if max_loans_value >= minter_loan_info.loans {
+        Ok(CollateralAvailableRespone {
+            available_balance: collateral_amount.into(),
+        })
+    } else {
+        let diff = minter_loan_info.loans - max_loans_value;
+        let available_value = collateral_amount * collateral_price
+            - Decimal256::from_ratio(diff * multiply_ratio, collateral_max_ltv * multiply_ratio)
+                * Uint256::one();
+        let available_amount = Decimal256::from_ratio(
+            available_value * multiply_ratio,
+            collateral_price * multiply_ratio,
+        ) * Uint256::one();
+        Ok(CollateralAvailableRespone {
+            available_balance: available_amount.into(),
+        })
+    }
 }
 
 pub fn query_minter_collateral(deps: Deps, minter: Addr) -> StdResult<MinterCollateralResponse> {
@@ -538,7 +606,7 @@ pub fn redeem_stable_coin(
     let mut collaterals_values = Uint256::zero();
     let mut prev_collaterals_value;
 
-    let multiply_ratio = Uint256::from(100_000_000u64);
+    let multiply_ratio: Uint256 = Uint256::from(100_000_000u64);
 
     for collateral in collaterals.clone() {
         let price = query_price(
