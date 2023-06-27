@@ -1,7 +1,6 @@
-use cdp::{
-    central_control::{CollateralsResponse, WhitelistElemResponse},
-    tokens::{TokenHuman, Tokens},
-};
+use cdp::central_control::{CollateralsResponse, MinterLoanResponse, WhitelistElemResponse};
+use cdp::tokens::Tokens;
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -14,8 +13,11 @@ const KEY_CONFIG: &[u8] = b"config";
 const KEY_STATE: &[u8] = b"state";
 const PREFIX_WHITELISTELEM: &[u8] = b"whitelistelem";
 const PREFIX_COLLATERALS: &[u8] = b"collateral";
-//const PREFIX_COLLATERALSLOAN: &[u8] = b"collateralsloan";
 const PREFIX_LOANINFO: &[u8] = b"loan";
+
+// settings for pagination
+const MAX_LIMIT: u32 = 30;
+const DEFAULT_LIMIT: u32 = 10;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct WhitelistElem {
@@ -31,14 +33,6 @@ pub struct State {
     pub total_loans: Uint256,
     pub collateral_safe_rate: Decimal256,
 }
-
-// #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-// pub struct CollateralLoanInfo {
-//     pub collateral_contract: CanonicalAddr,
-//     pub total_collateral_loans: Uint256,
-//     pub total_collateral_amount: Uint256,
-//     pub collateral_rate: Decimal256,
-// }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct Config {
@@ -58,13 +52,6 @@ pub struct MinterLoanInfo {
     pub minter: CanonicalAddr,
     pub loans: Uint256,
     pub is_redemption_provider: bool,
-}
-
-#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
-pub struct MinterCollateralLoan {
-    pub minter: CanonicalAddr,
-    pub collaterals: TokenHuman,
-    pub loans: Uint256,
 }
 
 pub fn store_config(storage: &mut dyn Storage, data: &Config) -> StdResult<()> {
@@ -108,31 +95,31 @@ pub fn read_minter_loan_info(
     }
 }
 
-// pub fn store_collateral_loan_info(
-//     storage: &mut dyn Storage,
-//     collateral_contract: &CanonicalAddr,
-//     collateral_loan_info: &CollateralLoanInfo,
-// ) -> StdResult<()> {
-//     bucket(storage, PREFIX_COLLATERALSLOAN)
-//         .save(&collateral_contract.as_slice(), collateral_loan_info)
-// }
-
-// pub fn read_collateral_loan_info(
-//     storage: &dyn Storage,
-//     collateral_contract: &CanonicalAddr,
-// ) -> CollateralLoanInfo {
-//     match bucket_read(storage, PREFIX_COLLATERALSLOAN).load(collateral_contract.clone().as_slice())
-//     {
-//         Ok(v) => v,
-//         _ => CollateralLoanInfo {
-//             collateral_contract: collateral_contract.clone(),
-//             total_collateral_loans: Uint256::zero(),
-//             total_collateral_amount: Uint256::zero(),
-//             collateral_rate: Decimal256::zero(),
-//         },
-//     }
-// }
-
+pub fn read_redemeption_list(
+    deps: Deps,
+    start_after: Option<CanonicalAddr>,
+    limit: Option<u32>,
+) -> StdResult<Vec<MinterLoanResponse>> {
+    let whitelist_bucket: ReadonlyBucket<MinterLoanInfo> =
+        ReadonlyBucket::new(deps.storage, PREFIX_LOANINFO);
+    let limit = limit.unwrap_or(DEFAULT_LIMIT).min(MAX_LIMIT) as usize;
+    let start = calc_range_start(start_after);
+    let mut result = Vec::with_capacity(limit);
+    for elem in whitelist_bucket.range(start.as_deref(), None, Order::Ascending) {
+        let (_k, v) = elem?;
+        if v.is_redemption_provider {
+            result.push(MinterLoanResponse {
+                minter: deps.api.addr_humanize(&v.minter)?.to_string(),
+                loans: v.loans,
+                is_redemption_provider: v.is_redemption_provider,
+            });
+        }
+        if result.len() == limit {
+            break;
+        }
+    }
+    Ok(result)
+}
 pub fn store_whitelist_elem(
     storage: &mut dyn Storage,
     collateral_contract: &CanonicalAddr,
@@ -155,9 +142,6 @@ pub fn read_whitelist_elem(
     }
 }
 
-// settings for pagination
-const MAX_LIMIT: u32 = 30;
-const DEFAULT_LIMIT: u32 = 10;
 pub fn read_whitelist(
     deps: Deps,
     start_after: Option<CanonicalAddr>,

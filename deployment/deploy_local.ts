@@ -518,41 +518,41 @@ async function main(): Promise<void> {
 
     ///case 9. redeem kUSD
     // await queryAddressBalance(LCD_ENDPOINT, account.address, stable_coin_denom);
-    await sendCoin(RPC_ENDPOINT, wallet, account2.address, "", coin(1000000, stable_coin_denom));
-    await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
+    // await sendCoin(RPC_ENDPOINT, wallet, account2.address, "", coin(1000000, stable_coin_denom));
+    // await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
 
-    console.log("pool state:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, poolAddress, { state: {} });
+    // console.log("pool state:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, poolAddress, { state: {} });
 
-    console.log("account 2 stable coin balance:")
-    await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
+    // console.log("account 2 stable coin balance:")
+    // await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
 
-    console.log("account 1 loan info:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {loan_info: { minter: account.address }});
+    // console.log("account 1 loan info:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {loan_info: { minter: account.address }});
 
-    console.log("account 2 BSEIToken balance:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, bSeiTokenAddress, {balance : { address: account2.address}});
+    // console.log("account 2 BSEIToken balance:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, bSeiTokenAddress, {balance : { address: account2.address}});
 
-    console.log("account 2 stSEIToken balance:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, stSeiTokenAddress, {balance: { address: account2.address}});
+    // console.log("account 2 stSEIToken balance:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, stSeiTokenAddress, {balance: { address: account2.address}});
 
-    console.log("redeem stable coin:")
-    await executeContract(RPC_ENDPOINT, wallet2, poolAddress, { redeem_stable_coin: { minter: account.address } }, "", coins(1000000, stable_coin_denom));
+    // console.log("redeem stable coin:")
+    // await executeContract(RPC_ENDPOINT, wallet2, poolAddress, { redeem_stable_coin: { minter: account.address } }, "", coins(1000000, stable_coin_denom));
 
-    console.log("pool state:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, poolAddress, { state: {} });
+    // console.log("pool state:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, poolAddress, { state: {} });
 
-    console.log("account2 stable coin balance:")
-    await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
+    // console.log("account2 stable coin balance:")
+    // await queryAddressBalance(LCD_ENDPOINT, account2.address, stable_coin_denom);
 
-    console.log("account 1 loan info:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {loan_info: { minter: account.address }});
+    // console.log("account 1 loan info:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {loan_info: { minter: account.address }});
 
-    console.log("account 2 BSEIToken balance:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, bSeiTokenAddress, {balance : { address: account2.address}});
+    // console.log("account 2 BSEIToken balance:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, bSeiTokenAddress, {balance : { address: account2.address}});
 
-    console.log("account 2 stSEIToken balance:")
-    await queryWasmContract(RPC_ENDPOINT, wallet, stSeiTokenAddress, {balance: { address: account2.address}});
+    // console.log("account 2 stSEIToken balance:")
+    // await queryWasmContract(RPC_ENDPOINT, wallet, stSeiTokenAddress, {balance: { address: account2.address}});
 
 
     ///case 10. liquidate collateral
@@ -608,6 +608,24 @@ async function main(): Promise<void> {
 
     // console.log("account 1 loan info:")
     // await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, { loan_info: { minter: account.address } });
+
+
+    //query interface
+    console.log("query bSEI collateral info:")
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {collateral_elem: { collateral: bSeiTokenAddress } });
+    console.log("query stSEI collateral info:")
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {collateral_elem: { collateral: stSeiTokenAddress } });
+
+    await queryWasmContract(RPC_ENDPOINT, wallet, oralcePythAddress, { query_price: { asset: bSeiTokenAddress } });
+    await queryWasmContract(RPC_ENDPOINT, wallet, oralcePythAddress, { query_price: { asset: stSeiTokenAddress } });
+
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, { loan_info: { minter: account.address } });
+
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, { minter_collateral: { minter: account.address } });
+
+
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: {}});
+
 
 }
 

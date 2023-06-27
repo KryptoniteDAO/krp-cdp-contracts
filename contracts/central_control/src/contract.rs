@@ -1,12 +1,13 @@
 use crate::error::ContractError;
 use crate::state::{
-    read_collaterals, read_config, read_minter_loan_info, read_whitelist, read_whitelist_elem,
-    store_collaterals, store_config, store_minter_loan_info, store_whitelist_elem, Config,
-    WhitelistElem,
+    read_collaterals, read_config, read_minter_loan_info, read_redemeption_list, read_whitelist,
+    read_whitelist_elem, store_collaterals, store_config, store_minter_loan_info,
+    store_whitelist_elem, Config, WhitelistElem,
 };
 use cdp::central_control::{
     ConfigResponse, ExecuteMsg, InstantiateMsg, LoanInfoResponse, MigrateMsg,
-    MinterCollateralResponse, QueryMsg, WhitelistElemResponse, WhitelistResponse,
+    MinterCollateralResponse, MinterLoanResponse, QueryMsg, RedemptionProviderListRespone,
+    WhitelistElemResponse, WhitelistResponse,
 };
 use cdp::handle::optional_addr_validate;
 use cdp::liquidation_queue::LiquidationAmountResponse;
@@ -190,6 +191,17 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
             deps,
             deps.api.addr_validate(&minter.as_str())?,
         )?),
+
+        QueryMsg::RedemptionProviderList {
+            minter,
+            start_after,
+            limit,
+        } => to_binary(&query_redemption_provider_list(
+            deps,
+            optional_addr_validate(deps.api, minter)?,
+            optional_addr_validate(deps.api, start_after)?,
+            limit,
+        )?),
     }
 }
 
@@ -236,7 +248,6 @@ pub fn liquidate_collateral(
     // Store left collaterals
     cur_collaterals.sub(liquidation_amount.clone())?;
     store_collaterals(deps.storage, &minter_raw, &cur_collaterals)?;
-
 
     let pool_contract = deps.api.addr_humanize(&config.pool_contract)?;
     let mut liquidation_messages: Vec<CosmosMsg> = vec![];
@@ -778,5 +789,34 @@ pub fn query_whitelist(
 
         let whitelist: Vec<WhitelistElemResponse> = read_whitelist(deps, start_after, limit)?;
         Ok(WhitelistResponse { elems: whitelist })
+    }
+}
+
+pub fn query_redemption_provider_list(
+    deps: Deps,
+    minter: Option<Addr>,
+    start_after: Option<Addr>,
+    limit: Option<u32>,
+) -> StdResult<RedemptionProviderListRespone> {
+    if let Some(minter) = minter {
+        let minter_loan =
+            read_minter_loan_info(deps.storage, &deps.api.addr_canonicalize(minter.as_str())?)?;
+        Ok(RedemptionProviderListRespone {
+            provider_list: vec![MinterLoanResponse {
+                minter: deps.api.addr_humanize(&minter_loan.minter)?.to_string(),
+                loans: minter_loan.loans,
+                is_redemption_provider: minter_loan.is_redemption_provider,
+            }],
+        })
+    } else {
+        let start_after = if let Some(start_after) = start_after {
+            Some(deps.api.addr_canonicalize(start_after.as_str())?)
+        } else {
+            None
+        };
+
+        let provider_list: Vec<MinterLoanResponse> =
+            read_redemeption_list(deps, start_after, limit)?;
+        Ok(RedemptionProviderListRespone { provider_list })
     }
 }

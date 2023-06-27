@@ -1,5 +1,5 @@
 use cosmwasm_bignumber::{Decimal256, Uint256};
-use cosmwasm_std::Uint128;
+use cosmwasm_std::{Uint128};
 use cosmwasm_schema::{cw_serde, QueryResponses};
 
 use crate::tokens::{TokensHuman};
@@ -98,7 +98,13 @@ pub enum QueryMsg {
     #[returns(MinterCollateralResponse)]
     MinterCollateral {
         minter: String,
-    }
+    },
+    #[returns(RedemptionProviderListRespone)]
+    RedemptionProviderList {
+        minter: Option<String>,
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
 }
 
 #[cw_serde]
@@ -148,4 +154,16 @@ pub struct WhitelistResponse {
 #[cw_serde]
 pub struct MinterCollateralResponse {
     pub collaterals: TokensHuman,
+}
+
+#[cw_serde]
+pub struct MinterLoanResponse {
+    pub minter: String,
+    pub loans: Uint256,
+    pub is_redemption_provider: bool,
+}
+
+#[cw_serde]
+pub struct RedemptionProviderListRespone {
+    pub provider_list: Vec<MinterLoanResponse>,
 }
