@@ -39,7 +39,6 @@ pub struct Config {
     pub owner_addr: CanonicalAddr,
     pub oracle_contract: CanonicalAddr,
     pub pool_contract: CanonicalAddr,
-    pub custody_contract: CanonicalAddr,
     pub liquidation_contract: CanonicalAddr,
     pub stable_denom: String,
     //The distribution period after the staking revenue from the chain,

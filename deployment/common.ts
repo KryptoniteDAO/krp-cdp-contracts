@@ -10,7 +10,7 @@ export async function storeCode(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdW
 
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
-  const fee = calculateFee(3100000, "0.01usei");
+  const fee = calculateFee(3100000, "0.1usei");
   let codeId = 0;
   try {
     const data = fs.readFileSync(contract_file);

@@ -82,6 +82,7 @@ async function main(): Promise<void> {
 
     //atlantic-2 evironment
     let controlAddress = "sei1qvudqa3kmwy3aaw0jev8snsk3vm8a8njje7607y4ukzupv7rdhfs76hvmc";
+    //let controlAddress = "";
     let custodyAddress = "sei1gg54rycy4h6aaf7v7eq4jadm4t342xhckdym5aa4ystlnqezdn2qdgzykw";
     let poolAddress = "sei1eaffhjnw6kzznfhcuq69aflagc3pauq5dwtg66knxxmjk5p8xyeqhstugq";
     let liquidateAddress = "sei1mpyd86mpvaus2u5cft5f9vxlxysrd8k6xp4d7qf8juhx3z6ug6eqq5s5fu";
@@ -624,10 +625,12 @@ async function main(): Promise<void> {
     await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, { minter_collateral: { minter: account.address } });
 
 
-    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: {}});
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: { minter: "sei1grq2267xm4qzdzu43yt75p006m9axp9sf2nzshc8utlqru2lktkskkjn6c"}});
 
     await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {collateral_available:{minter: account.address, collateral_contract: bSeiTokenAddress}} );
-    {"available_balance":"223116"}
+
+
+
 }
 
 main().catch(console.log);

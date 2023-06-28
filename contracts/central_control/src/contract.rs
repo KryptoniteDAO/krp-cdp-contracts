@@ -37,7 +37,6 @@ pub fn instantiate(
         owner_addr: api.addr_canonicalize(&msg.owner_addr.as_str())?,
         oracle_contract: api.addr_canonicalize(&msg.oracle_contract.as_str())?,
         pool_contract: api.addr_canonicalize(&msg.pool_contract.as_str())?,
-        custody_contract: api.addr_canonicalize(&msg.custody_contract.as_str())?,
         liquidation_contract: api.addr_canonicalize(&msg.liquidation_contract.as_str())?,
         epoch_period: msg.epoch_period,
         redeem_fee: msg.redeem_fee,
@@ -62,7 +61,6 @@ pub fn execute(
             owner_addr,
             oracle_contract,
             pool_contract,
-            custody_contract,
             liquidation_contract,
             epoch_period,
             redeem_fee,
@@ -74,7 +72,6 @@ pub fn execute(
                 optional_addr_validate(api, owner_addr)?,
                 optional_addr_validate(api, oracle_contract)?,
                 optional_addr_validate(api, pool_contract)?,
-                optional_addr_validate(api, custody_contract)?,
                 optional_addr_validate(api, liquidation_contract)?,
                 epoch_period,
                 redeem_fee,
@@ -433,7 +430,6 @@ pub fn update_config(
     owner_addr: Option<Addr>,
     oracle_contract: Option<Addr>,
     pool_contract: Option<Addr>,
-    custody_contract: Option<Addr>,
     liquidation_contract: Option<Addr>,
     epoch_period: Option<u64>,
     redeem_fee: Option<Decimal256>,
@@ -460,9 +456,6 @@ pub fn update_config(
         config.pool_contract = deps.api.addr_canonicalize(pool_contract.as_str())?;
     }
 
-    if let Some(custody_contract) = custody_contract {
-        config.custody_contract = deps.api.addr_canonicalize(custody_contract.as_str())?;
-    }
 
     if let Some(liquidation_contract) = liquidation_contract {
         config.liquidation_contract = deps.api.addr_canonicalize(liquidation_contract.as_str())?;
@@ -778,11 +771,10 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
         owner_add: deps.api.addr_humanize(&config.owner_addr)?.to_string(),
         oracle_contract: deps.api.addr_humanize(&config.oracle_contract)?.to_string(),
         pool_contract: deps.api.addr_humanize(&config.pool_contract)?.to_string(),
-        custody_contract: deps
-            .api
-            .addr_humanize(&config.custody_contract)?
-            .to_string(),
+        liquidation_contract: deps.api.addr_humanize(&config.liquidation_contract)?.to_string(),
+        stable_denom : config.stable_denom,
         epoch_period: config.epoch_period,
+        redeem_fee: config.redeem_fee,
     })
 }
 

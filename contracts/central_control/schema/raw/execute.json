@@ -11,12 +11,6 @@
         "update_config": {
           "type": "object",
           "properties": {
-            "custody_contract": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
             "epoch_period": {
               "type": [
                 "integer",

@@ -7,7 +7,6 @@
     "title": "InstantiateMsg",
     "type": "object",
     "required": [
-      "custody_contract",
       "epoch_period",
       "liquidation_contract",
       "oracle_contract",
@@ -17,9 +16,6 @@
       "stable_denom"
     ],
     "properties": {
-      "custody_contract": {
-        "type": "string"
-      },
       "epoch_period": {
         "type": "integer",
         "format": "uint64",
@@ -66,12 +62,6 @@
           "update_config": {
             "type": "object",
             "properties": {
-              "custody_contract": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
               "epoch_period": {
                 "type": [
                   "integer",
@@ -608,20 +598,22 @@
       "title": "ConfigResponse",
       "type": "object",
       "required": [
-        "custody_contract",
         "epoch_period",
+        "liquidation_contract",
         "oracle_contract",
         "owner_add",
-        "pool_contract"
+        "pool_contract",
+        "redeem_fee",
+        "stable_denom"
       ],
       "properties": {
-        "custody_contract": {
-          "type": "string"
-        },
         "epoch_period": {
           "type": "integer",
           "format": "uint64",
           "minimum": 0.0
+        },
+        "liquidation_contract": {
+          "type": "string"
         },
         "oracle_contract": {
           "type": "string"
@@ -631,9 +623,21 @@
         },
         "pool_contract": {
           "type": "string"
+        },
+        "redeem_fee": {
+          "$ref": "#/definitions/Decimal256"
+        },
+        "stable_denom": {
+          "type": "string"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "definitions": {
+        "Decimal256": {
+          "description": "A fixed-point decimal value with 18 fractional digits, i.e. Decimal256(1_000_000_000_000_000_000) == 1.0 The greatest possible value that can be represented is 115792089237316195423570985008687907853269984665640564039457.584007913129639935 (which is (2^128 - 1) / 10^18)",
+          "type": "string"
+        }
+      }
     },
     "loan_info": {
       "$schema": "http://json-schema.org/draft-07/schema#",

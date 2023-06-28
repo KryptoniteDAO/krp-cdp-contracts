@@ -10,7 +10,6 @@ pub struct InstantiateMsg {
     pub owner_addr: String,
     pub oracle_contract: String,
     pub pool_contract: String,
-    pub custody_contract: String,
     pub liquidation_contract: String,
     pub stable_denom: String,
     pub epoch_period: u64,
@@ -23,7 +22,6 @@ pub enum ExecuteMsg {
         owner_addr: Option<String>,
         oracle_contract: Option<String>,
         pool_contract: Option<String>,
-        custody_contract: Option<String>,
         liquidation_contract: Option<String>,
         epoch_period: Option<u64>,
         redeem_fee: Option<Decimal256>,
@@ -121,9 +119,12 @@ pub struct ConfigResponse {
     pub owner_add: String,
     pub oracle_contract: String,
     pub pool_contract: String,
-    pub custody_contract: String,
+    pub liquidation_contract: String,
+    pub stable_denom: String,
     pub epoch_period: u64,
+    pub redeem_fee: Decimal256,
 }
+
 
 // We define a custom struct for each query response
 #[cw_serde]
