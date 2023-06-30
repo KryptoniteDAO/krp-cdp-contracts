@@ -72,6 +72,7 @@ pub enum ExecuteMsg {
         max_ltv: Decimal256,
         custody_contract: String,
         collateral_contract: String,
+        staking_reward_contract: String,
     },
 }
 
@@ -149,6 +150,7 @@ pub struct WhitelistElemResponse {
     pub max_ltv: Decimal256,
     pub custody_contract: String,
     pub collateral_contract: String,
+    pub staking_reward_contract: String,
 }
 
 // We define a custom struct for each query response

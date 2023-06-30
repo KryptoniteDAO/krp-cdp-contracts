@@ -117,11 +117,11 @@ pub fn update_config(
     }
 
     if let Some(owner_addr) = owner_addr {
-        config.owner_addr = deps.api.addr_canonicalize(owner_addr.as_str())?
+        config.owner_addr = deps.api.addr_canonicalize(owner_addr.as_str())?;
     }
 
     if let Some(control_contract) = control_contract {
-        config.control_contract = deps.api.addr_canonicalize(control_contract.as_str())?
+        config.control_contract = deps.api.addr_canonicalize(control_contract.as_str())?;
     }
 
     if let Some(min_redeem_value) = min_redeem_value {

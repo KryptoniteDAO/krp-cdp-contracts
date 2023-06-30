@@ -1,3 +1,17 @@
+// Copyright 2023 Kryptonite Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 
@@ -18,14 +32,19 @@ use cosmwasm_std::{
 use cw20::{BalanceResponse as Cw20BalanceResponse, Cw20QueryMsg, TokenInfoResponse};
 
 use crate::central_control::{LoanInfoResponse, WhitelistElemResponse, WhitelistResponse};
+
 use crate::liquidation_queue::LiquidationAmountResponse;
 use crate::oracle_pyth::{PriceResponse, QueryMsg as oraclePythQueryMsg};
+use crate::rewards::AccruedRewardsResponse;
 use crate::stable_pool::ConfigResponse;
 use crate::tokens::TokensHuman;
+use crate::custody::ConfigResponse as CustodyConfigResponse;
 
 use crate::central_control::QueryMsg as ControlQueryMsg;
 use crate::liquidation_queue::QueryMsg as LiquidationQueryMsg;
+use crate::rewards::QueryMsg as RewardsQueryMsg;
 use crate::stable_pool::QueryMsg as PoolQueryMsg;
+use crate::custody::QueryMsg as CustodyQueryMsg;
 
 pub fn query_all_balances(deps: Deps, account_addr: Addr) -> StdResult<Vec<Coin>> {
     // load price form the oracle
@@ -165,7 +184,6 @@ pub fn query_liquidation_amount(
     collaterals: &TokensHuman,
     collateral_prices: Vec<Decimal256>,
 ) -> StdResult<LiquidationAmountResponse> {
-
     let liquidation_amount_res: LiquidationAmountResponse =
         deps.querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
             contract_addr: liquidation_contract.to_string(),
@@ -178,4 +196,33 @@ pub fn query_liquidation_amount(
         }))?;
 
     Ok(liquidation_amount_res)
+}
+
+pub fn query_collaterals_accrued_rewards(
+    deps: Deps,
+    reward_contract: String,
+    holder: String,
+) -> StdResult<AccruedRewardsResponse> {
+    let accrued_rewards = deps.querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+        contract_addr: reward_contract,
+        msg: to_binary(&RewardsQueryMsg::AccruedRewards {
+            address: holder,
+        })?,
+    }))?;
+
+    Ok(accrued_rewards)
+}
+
+
+pub fn query_custody_configure_info(
+    deps: Deps,
+    custody_contract: String,
+) -> StdResult<CustodyConfigResponse> {
+    let custody_config_info = deps.querier.query(&QueryRequest::Wasm(WasmQuery::Smart {
+        contract_addr: custody_contract,
+        msg: to_binary(&CustodyQueryMsg::Config {})?
+    }))?;
+
+    Ok(custody_config_info)
+
 }

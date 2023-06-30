@@ -26,6 +26,7 @@ pub struct WhitelistElem {
     pub max_ltv: Decimal256,
     pub custody_contract: CanonicalAddr,
     pub collateral_contract: CanonicalAddr,
+    pub staking_reward_contract: CanonicalAddr,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -163,6 +164,7 @@ pub fn read_whitelist(
                 max_ltv: v.max_ltv,
                 collateral_contract: deps.api.addr_humanize(&v.collateral_contract)?.to_string(),
                 custody_contract: deps.api.addr_humanize(&v.custody_contract)?.to_string(),
+                staking_reward_contract: deps.api.addr_humanize(&v.staking_reward_contract)?.to_string(),
             })
         })
         .collect()

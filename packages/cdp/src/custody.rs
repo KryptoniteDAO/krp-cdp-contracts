@@ -12,6 +12,7 @@ pub struct InstantiateMsg {
     pub pool_contract: String,
     pub collateral_contract: String,
     pub liquidation_contract: String,
+    pub staking_reward_contract: String,
 }
 
 #[cw_serde]
@@ -22,6 +23,7 @@ pub enum ExecuteMsg {
         pool_contract: Option<String>,
         collateral_contract: Option<String>,
         liquidation_contract: Option<String>,
+        staking_reward_contract: Option<String>,
     },
 
     /// Receive interface for send token.
@@ -67,6 +69,17 @@ pub enum QueryMsg {
     State {},
 }
 
+#[cw_serde]
+pub struct ConfigResponse {
+    pub owner_addr: String, 
+    pub control_contract: String,
+    pub pool_contract: String, 
+    pub collateral_contract: String,
+    pub liquidation_contract: String,
+    pub staking_reward_contract: String,
+}
+
+
 // We define a custom struct for each query response
 #[cw_serde]
 pub struct CollateralsResponse {
@@ -84,11 +97,3 @@ pub struct StateResponse {
 pub struct MigrateMsg {}
 
 
-#[cw_serde]
-pub struct ConfigResponse {
-    pub owner_addr: String, 
-    pub control_contract: String,
-    pub pool_contract: String, 
-    pub collateral_contract: String,
-    pub liquidation_contract: String,
-}

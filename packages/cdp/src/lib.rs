@@ -7,3 +7,5 @@ pub mod querier;
 pub mod tokens;
 pub mod liquidation_queue;
 pub mod handle;
+pub mod staking_reward;
+pub mod rewards;

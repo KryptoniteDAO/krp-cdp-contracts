@@ -352,8 +352,8 @@ async function main(): Promise<void> {
 
 
     ///migrate control contract
-    controlCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_central_control.wasm");
-    await migrateContract(RPC_ENDPOINT, wallet, controlAddress, controlCodeId, {}, "");
+    // controlCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_central_control.wasm");
+    // await migrateContract(RPC_ENDPOINT, wallet, controlAddress, controlCodeId, {}, "");
 
     // custodyCodeId = await storeCode(RPC_ENDPOINT, wallet, "../artifacts/cdp_custody.wasm");
     // await migrateContract(RPC_ENDPOINT, wallet, custodyAddress, custodyCodeId, {}, "");
@@ -392,10 +392,10 @@ async function main(): Promise<void> {
     //     {
     //         send: {
     //             contract: custodyAddress,
-    //             amount: "200000",
+    //             amount: "10000000",
     //             msg: Buffer.from(JSON.stringify({
     //                 "mint_stable_coin": {
-    //                     "stable_amount": "10000000",
+    //                     "stable_amount": "10000000000",
     //                     "is_redemption_provider": true,
 
     //                 }
@@ -625,9 +625,21 @@ async function main(): Promise<void> {
     await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, { minter_collateral: { minter: account.address } });
 
 
-    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: { minter: "sei1grq2267xm4qzdzu43yt75p006m9axp9sf2nzshc8utlqru2lktkskkjn6c"}});
+    //await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {redemption_provider_list: { minter: "sei1grq2267xm4qzdzu43yt75p006m9axp9sf2nzshc8utlqru2lktkskkjn6c"}});
 
     await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {collateral_available:{minter: account.address, collateral_contract: bSeiTokenAddress}} );
+
+    await queryWasmContract(RPC_ENDPOINT, wallet, controlAddress, {config:{}});
+
+    await queryAddressBalance(LCD_ENDPOINT, account.address, stable_coin_denom);
+    
+    //wsendCoin(RPC_ENDPOINT, wallet, "sei135mlnw9ndkyglgx7ma95pw22cl64mpnw58pfpd", "", coin(9900000000, stable_coin_denom));
+
+    await queryAddressBalance(LCD_ENDPOINT, account.address, stable_coin_denom);
+
+
+    console.log("account BSEIToken balance:")
+    await queryWasmContract(RPC_ENDPOINT, wallet, bSeiTokenAddress, {balance : { address: account.address}});
 
 
 

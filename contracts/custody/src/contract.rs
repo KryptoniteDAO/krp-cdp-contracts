@@ -29,6 +29,7 @@ pub fn instantiate(
         pool_contract: deps.api.addr_canonicalize(msg.pool_contract.as_str())?,
         collateral_contract: deps.api.addr_canonicalize(&msg.collateral_contract)?,
         liquidation_contract: deps.api.addr_canonicalize(&msg.liquidation_contract)?,
+        staking_reward_contract: deps.api.addr_canonicalize(&msg.staking_reward_contract)?,
     };
     store_config(deps.storage, &config)?;
 
@@ -57,6 +58,7 @@ pub fn execute(
             pool_contract,
             collateral_contract,
             liquidation_contract,
+            staking_reward_contract,
         } => update_config(
             deps,
             info,
@@ -65,6 +67,7 @@ pub fn execute(
             pool_contract,
             collateral_contract,
             liquidation_contract,
+            staking_reward_contract,
         ),
         ExecuteMsg::RedeemStableCoin {
             redeemer,
@@ -124,6 +127,7 @@ pub fn update_config(
     pool_contract: Option<String>,
     collateral_contract: Option<String>,
     liquidation_contract: Option<String>,
+    staking_reward_contract: Option<String>,
 ) -> Result<Response, ContractError> {
     let mut config = read_config(deps.as_ref().storage)?;
     let sender_raw = deps.api.addr_canonicalize(info.sender.as_str())?;
@@ -153,6 +157,10 @@ pub fn update_config(
 
     if let Some(liquidation_contract) = liquidation_contract {
         config.liquidation_contract = deps.api.addr_canonicalize(&liquidation_contract)?;
+    }
+
+    if let Some(staking_reward_contract) = staking_reward_contract {
+        config.staking_reward_contract = deps.api.addr_canonicalize(&staking_reward_contract)?;
     }
 
     store_config(deps.storage, &config)?;
@@ -378,6 +386,7 @@ fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
         pool_contract: api.addr_humanize(&config.pool_contract)?.to_string(),
         collateral_contract: api.addr_humanize(&config.collateral_contract)?.to_string(),
         liquidation_contract: api.addr_humanize(&config.liquidation_contract)?.to_string(),
+        staking_reward_contract: api.addr_humanize(&config.staking_reward_contract)?.to_string(),
     })
 }
 

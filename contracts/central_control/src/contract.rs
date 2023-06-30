@@ -12,7 +12,9 @@ use cdp::central_control::{
 use cdp::handle::optional_addr_validate;
 use cdp::liquidation_queue::LiquidationAmountResponse;
 use cdp::querier::{query_balance, query_liquidation_amount, query_price};
+use cdp::staking_reward::ExecuteMsg as StakingRewardExecuteMsg;
 use cdp::tokens::{Tokens, TokensMath, TokensToHuman, TokensToRaw};
+
 use cosmwasm_std::{
     attr, entry_point, to_binary, Addr, Binary, CanonicalAddr, CosmosMsg, Deps, DepsMut, Env,
     MessageInfo, Response, StdResult, Uint128, WasmMsg,
@@ -24,6 +26,8 @@ use std::vec;
 use cdp::custody::ExecuteMsg as CustodyExecuteMsg;
 use cdp::stable_pool::ExecuteMsg as PoolExecuteMsg;
 use cosmwasm_bignumber::{Decimal256, Uint256};
+
+
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -46,8 +50,6 @@ pub fn instantiate(
 
     Ok(Response::default())
 }
-
-
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn execute(
@@ -112,6 +114,7 @@ pub fn execute(
             max_ltv,
             custody_contract,
             collateral_contract,
+            staking_reward_contract,
         } => {
             let api = deps.api;
             whitelist_collateral(
@@ -122,6 +125,7 @@ pub fn execute(
                 max_ltv,
                 api.addr_canonicalize(custody_contract.as_str())?,
                 api.addr_canonicalize(collateral_contract.as_str())?,
+                api.addr_canonicalize(staking_reward_contract.as_str())?,
             )
         }
         ExecuteMsg::MintStableCoin {
@@ -307,7 +311,7 @@ pub fn query_collateral_available(
 
     let mut collateral_amount = Uint256::zero();
     let multiply_ratio: Uint256 = Uint256::from(100_000_000u64);
-    
+
     for collateral in collaterals {
         let collateral_info = read_whitelist_elem(deps.storage, &collateral.0)?;
         let price_resp = query_price(
@@ -415,13 +419,25 @@ pub fn deposit_collateral(
     minter_collaterals.add(collateral);
     store_collaterals(deps.storage, &minter_raw, &minter_collaterals)?;
 
-    Ok(Response::new().add_attributes(vec![
-        attr("action", "deposit_collateral"),
-        attr("contract_name", "control"),
-        attr("minter", minter.to_string()),
-        attr("collateral_contract", collateral_contract.to_string()),
-        attr("collateral_amount", collateral_amount.to_string()),
-    ]))
+    Ok(Response::new()
+        .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: deps
+                .api
+                .addr_humanize(&collateral_elem.staking_reward_contract)?
+                .to_string(),
+            msg: to_binary(&StakingRewardExecuteMsg::IncreaseBalance {
+                address: minter.to_string(),
+                amount: collateral_amount,
+            })?,
+            funds: vec![],
+        }))
+        .add_attributes(vec![
+            attr("action", "deposit_collateral"),
+            attr("contract_name", "control"),
+            attr("minter", minter.to_string()),
+            attr("collateral_contract", collateral_contract.to_string()),
+            attr("collateral_amount", collateral_amount.to_string()),
+        ]))
 }
 
 pub fn update_config(
@@ -455,7 +471,6 @@ pub fn update_config(
     if let Some(pool_contract) = pool_contract {
         config.pool_contract = deps.api.addr_canonicalize(pool_contract.as_str())?;
     }
-
 
     if let Some(liquidation_contract) = liquidation_contract {
         config.liquidation_contract = deps.api.addr_canonicalize(liquidation_contract.as_str())?;
@@ -598,7 +613,6 @@ pub fn redeem_stable_coin(
     let mut redeem_collaterals = Tokens::default();
     let mut collaterals_values = Uint256::zero();
     let mut prev_collaterals_value;
-
     let multiply_ratio: Uint256 = Uint256::from(100_000_000u64);
 
     for collateral in collaterals.clone() {
@@ -640,18 +654,30 @@ pub fn redeem_stable_coin(
 
     let mut messages: Vec<CosmosMsg> = vec![];
     for redeem_elem in redeem_collaterals {
-        let custody_contract = read_whitelist_elem(deps.storage, &redeem_elem.0)?;
+        let whitelit_elem = read_whitelist_elem(deps.storage, &redeem_elem.0)?;
         messages.push(CosmosMsg::Wasm(WasmMsg::Execute {
             contract_addr: deps
                 .api
-                .addr_humanize(&custody_contract.custody_contract)?
+                .addr_humanize(&whitelit_elem.custody_contract)?
                 .to_string(),
             msg: to_binary(&CustodyExecuteMsg::RedeemStableCoin {
                 redeemer: redeemer.to_string(),
                 redeem_amount: redeem_elem.1.into(),
             })?,
             funds: vec![],
-        }))
+        }));
+
+        messages.push(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: deps
+                .api
+                .addr_humanize(&whitelit_elem.staking_reward_contract)?
+                .to_string(),
+            msg: to_binary(&StakingRewardExecuteMsg::DecreaseBalance {
+                address: minter.to_string(),
+                amount: redeem_elem.1.into(),
+            })?,
+            funds: vec![],
+        }));
     }
 
     Ok(Response::new().add_messages(messages).add_attributes(vec![
@@ -709,6 +735,16 @@ pub fn withdraw_collateral(
             })?,
             funds: vec![],
         }))
+        .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: api
+                .addr_humanize(&whitelist_elem.staking_reward_contract)?
+                .to_string(),
+            msg: to_binary(&StakingRewardExecuteMsg::DecreaseBalance {
+                address: info.sender.to_string(),
+                amount: collateral_amount,
+            })?,
+            funds: vec![],
+        }))
         .add_attributes(vec![
             attr("action", "withdraw_collateral"),
             attr("sender", info.sender),
@@ -744,6 +780,7 @@ pub fn whitelist_collateral(
     max_ltv: Decimal256,
     custody_contract: CanonicalAddr,
     collateral_contract: CanonicalAddr,
+    staking_reward_contract: CanonicalAddr,
 ) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
 
@@ -760,6 +797,7 @@ pub fn whitelist_collateral(
         max_ltv,
         custody_contract,
         collateral_contract: collateral_contract.clone(),
+        staking_reward_contract,
     };
     store_whitelist_elem(deps.storage, &collateral_contract, &data)?;
     Ok(Response::default())
@@ -771,8 +809,11 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
         owner_add: deps.api.addr_humanize(&config.owner_addr)?.to_string(),
         oracle_contract: deps.api.addr_humanize(&config.oracle_contract)?.to_string(),
         pool_contract: deps.api.addr_humanize(&config.pool_contract)?.to_string(),
-        liquidation_contract: deps.api.addr_humanize(&config.liquidation_contract)?.to_string(),
-        stable_denom : config.stable_denom,
+        liquidation_contract: deps
+            .api
+            .addr_humanize(&config.liquidation_contract)?
+            .to_string(),
+        stable_denom: config.stable_denom,
         epoch_period: config.epoch_period,
         redeem_fee: config.redeem_fee,
     })
@@ -814,6 +855,10 @@ pub fn query_whitelist_elem(
             .api
             .addr_humanize(&collateral_elem.collateral_contract)?
             .to_string(),
+        staking_reward_contract: deps
+            .api
+            .addr_humanize(&collateral_elem.staking_reward_contract)?
+            .to_string(),
     })
 }
 
@@ -837,7 +882,14 @@ pub fn query_whitelist(
                     .api
                     .addr_humanize(&whitelist_elem.custody_contract)?
                     .to_string(),
-                collateral_contract: collateral_contract.to_string(),
+                collateral_contract: deps
+                    .api
+                    .addr_humanize(&whitelist_elem.collateral_contract)?
+                    .to_string(),
+                staking_reward_contract: deps
+                    .api
+                    .addr_humanize(&whitelist_elem.staking_reward_contract)?
+                    .to_string(),
             }],
         })
     } else {

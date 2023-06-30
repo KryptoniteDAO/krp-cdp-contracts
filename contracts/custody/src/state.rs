@@ -19,6 +19,7 @@ pub struct Config {
     pub pool_contract: CanonicalAddr, 
     pub collateral_contract: CanonicalAddr,
     pub liquidation_contract: CanonicalAddr,
+    pub staking_reward_contract: CanonicalAddr,
 }
 
 

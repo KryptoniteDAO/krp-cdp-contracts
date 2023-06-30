@@ -148,6 +148,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "cdp_staking_reward"
+version = "0.0.1"
+dependencies = [
+ "cdp",
+ "cosmwasm-bignumber",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "cw-storage-plus 0.13.4",
+ "cw20",
+ "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -304,6 +320,17 @@ dependencies = [
 
 [[package]]
 name = "cw-storage-plus"
+version = "0.13.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "648b1507290bbc03a8d88463d7cd9b04b1fa0155e5eef366c4fa052b9caaac7a"
+dependencies = [
+ "cosmwasm-std",
+ "schemars",
+ "serde",
+]
+
+[[package]]
+name = "cw-storage-plus"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d9b6f91c0b94481a3e9ef1ceb183c37d00764f8751e39b45fc09f4d9b970d469"
@@ -336,7 +363,7 @@ checksum = "91398113b806f4d2a8d5f8d05684704a20ffd5968bf87e3473e1973710b884ad"
 dependencies = [
  "cosmwasm-schema",
  "cosmwasm-std",
- "cw-storage-plus",
+ "cw-storage-plus 0.16.0",
  "schemars",
  "serde",
 ]
