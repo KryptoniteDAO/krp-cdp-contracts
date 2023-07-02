@@ -64,6 +64,7 @@ pub fn execute(
             oracle_contract,
             pool_contract,
             liquidation_contract,
+            stable_denom,
             epoch_period,
             redeem_fee,
         } => {
@@ -75,6 +76,7 @@ pub fn execute(
                 optional_addr_validate(api, oracle_contract)?,
                 optional_addr_validate(api, pool_contract)?,
                 optional_addr_validate(api, liquidation_contract)?,
+                stable_denom,
                 epoch_period,
                 redeem_fee,
             )
@@ -447,6 +449,7 @@ pub fn update_config(
     oracle_contract: Option<Addr>,
     pool_contract: Option<Addr>,
     liquidation_contract: Option<Addr>,
+    stable_denom: Option<String>,
     epoch_period: Option<u64>,
     redeem_fee: Option<Decimal256>,
 ) -> Result<Response, ContractError> {
@@ -474,6 +477,10 @@ pub fn update_config(
 
     if let Some(liquidation_contract) = liquidation_contract {
         config.liquidation_contract = deps.api.addr_canonicalize(liquidation_contract.as_str())?;
+    }
+
+    if let Some(stable_denom) = stable_denom {
+        config.stable_denom = stable_denom;
     }
 
     if let Some(epoch_period) = epoch_period {

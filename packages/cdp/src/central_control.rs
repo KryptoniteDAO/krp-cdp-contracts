@@ -23,6 +23,7 @@ pub enum ExecuteMsg {
         oracle_contract: Option<String>,
         pool_contract: Option<String>,
         liquidation_contract: Option<String>,
+        stable_denom: Option<String>,
         epoch_period: Option<u64>,
         redeem_fee: Option<Decimal256>,
     },
