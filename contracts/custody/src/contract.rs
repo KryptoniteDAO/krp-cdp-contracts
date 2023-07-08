@@ -1,3 +1,16 @@
+// Copyright 2023 Kryptonite Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 use cosmwasm_bignumber::Uint256;
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
@@ -5,16 +18,18 @@ use cosmwasm_std::{
     Response, StdResult, Uint128, WasmMsg,
 };
 use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
+
 #[cfg(not(feature = "library"))]
 use std::vec;
 
 use crate::error::ContractError;
-use crate::state::{
-    read_config, read_state, store_config, store_state, Config, State,
-};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State};
 use cdp::central_control::ExecuteMsg as ControlExecuteMsg;
-use cdp::custody::{Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StateResponse, ConfigResponse};
+use cdp::custody::{
+    ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StateResponse,
+};
 use cdp::liquidation_queue::Cw20HookMsg as LiquidationCw20HookMsg;
+use cdp::rewards::ExecuteMsg as RewardsExecuteMsg;
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(
@@ -29,7 +44,7 @@ pub fn instantiate(
         pool_contract: deps.api.addr_canonicalize(msg.pool_contract.as_str())?,
         collateral_contract: deps.api.addr_canonicalize(&msg.collateral_contract)?,
         liquidation_contract: deps.api.addr_canonicalize(&msg.liquidation_contract)?,
-        staking_reward_contract: deps.api.addr_canonicalize(&msg.staking_reward_contract)?,
+        reward_book_contract: deps.api.addr_canonicalize(&msg.reward_book_contract)?,
     };
     store_config(deps.storage, &config)?;
 
@@ -58,7 +73,7 @@ pub fn execute(
             pool_contract,
             collateral_contract,
             liquidation_contract,
-            staking_reward_contract,
+            reward_book_contract,
         } => update_config(
             deps,
             info,
@@ -67,7 +82,7 @@ pub fn execute(
             pool_contract,
             collateral_contract,
             liquidation_contract,
-            staking_reward_contract,
+            reward_book_contract,
         ),
         ExecuteMsg::RedeemStableCoin {
             redeemer,
@@ -90,6 +105,11 @@ pub fn execute(
         ExecuteMsg::LiquidateCollateral { liquidator, amount } => {
             let api = deps.api;
             liquidate_collateral(deps, info, api.addr_validate(liquidator.as_str())?, amount)
+        }
+
+        ExecuteMsg::ClaimRewards { reward_contract } => {
+            let api = deps.api;
+            claim_rewards(deps, info, api.addr_validate(&reward_contract)?)
         }
     }
 }
@@ -127,7 +147,7 @@ pub fn update_config(
     pool_contract: Option<String>,
     collateral_contract: Option<String>,
     liquidation_contract: Option<String>,
-    staking_reward_contract: Option<String>,
+    reward_book_contract: Option<String>,
 ) -> Result<Response, ContractError> {
     let mut config = read_config(deps.as_ref().storage)?;
     let sender_raw = deps.api.addr_canonicalize(info.sender.as_str())?;
@@ -159,8 +179,8 @@ pub fn update_config(
         config.liquidation_contract = deps.api.addr_canonicalize(&liquidation_contract)?;
     }
 
-    if let Some(staking_reward_contract) = staking_reward_contract {
-        config.staking_reward_contract = deps.api.addr_canonicalize(&staking_reward_contract)?;
+    if let Some(reward_book_contract) = reward_book_contract {
+        config.reward_book_contract = deps.api.addr_canonicalize(&reward_book_contract)?;
     }
 
     store_config(deps.storage, &config)?;
@@ -266,7 +286,6 @@ pub fn mint_stable_coin(
     let mut state = read_state(deps.as_ref().storage)?;
     state.total_amount = state.total_amount + Uint256::from(amount);
     store_state(deps.storage, &state)?;
-
     Ok(Response::new()
         .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
             contract_addr: control_contract.clone(),
@@ -329,6 +348,38 @@ pub fn redeem_stable_coin(
     ]))
 }
 
+pub fn claim_rewards(
+    deps: DepsMut,
+    info: MessageInfo,
+    reward_contract: Addr,
+) -> Result<Response, ContractError> {
+    let config = read_config(deps.storage)?;
+
+    if config.reward_book_contract
+        != deps
+            .api
+            .addr_canonicalize(&info.sender.clone().to_string())?
+    {
+        return Err(ContractError::Unauthorized(
+            "claim rewards".to_string(),
+            info.sender.clone().to_string(),
+        ));
+    }
+
+    Ok(Response::new()
+        .add_message(CosmosMsg::Wasm(WasmMsg::Execute {
+            contract_addr: reward_contract.to_string(),
+            msg: to_binary(&RewardsExecuteMsg::ClaimRewards {
+                recipient: Some(info.sender.clone().to_string()),
+            })?,
+            funds: vec![],
+        }))
+        .add_attributes(vec![
+            attr("action", "claim_rewards"),
+            attr("recipient", info.sender.clone().to_string()),
+        ]))
+}
+
 pub fn liquidate_collateral(
     deps: DepsMut,
     _info: MessageInfo,
@@ -386,7 +437,7 @@ fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
         pool_contract: api.addr_humanize(&config.pool_contract)?.to_string(),
         collateral_contract: api.addr_humanize(&config.collateral_contract)?.to_string(),
         liquidation_contract: api.addr_humanize(&config.liquidation_contract)?.to_string(),
-        staking_reward_contract: api.addr_humanize(&config.staking_reward_contract)?.to_string(),
+        reward_book_contract: api.addr_humanize(&config.reward_book_contract)?.to_string(),
     })
 }
 

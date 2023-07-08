@@ -90,7 +90,7 @@ export async function queryAddressBalance(LCD_ENDPOINT: string, address: string,
     let queryAllRet = await queryClient.cosmos.bank.v1beta1.allBalances({ address: address, }).then(res => {
       console.log(JSON.stringify(res));
     }).catch(e => {
-      console.log(JSON.stringify(e));
+      console.log(e);
     });
   } else {
     let queryRet = await queryClient.cosmos.bank.v1beta1.balance(
@@ -100,7 +100,7 @@ export async function queryAddressBalance(LCD_ENDPOINT: string, address: string,
       }).then(res => {
         console.log(JSON.stringify(res));
       }).catch(e => {
-        console.log(JSON.stringify(e));
+        console.log(e);
       });
   }
   return null;
@@ -114,7 +114,7 @@ export async function queryWasmContract(RPC_ENDPOINT: string, wallet: DirectSecp
     message).then(res => {
       console.log(JSON.stringify(res));
     }).catch(e => {
-      console.log(JSON.stringify(e));
+      console.log(e);
     });
   return null;
 }
@@ -124,7 +124,7 @@ export async function queryStaking(LCD_ENDPOINT: string) {
   let qRet = await queryClient.cosmos.staking.v1beta1.pool().then(res => {
     console.log(JSON.stringify(res));
   }).catch(e => {
-    console.log(JSON.stringify(e));
+    console.log(e);
   });
   return null;
 }
@@ -134,7 +134,7 @@ export async function queryStakingParameters(LCD_ENDPOINT: string) {
   let qRet = await queryClient.cosmos.staking.v1beta1.params().then(res => {
     console.log(JSON.stringify(res));
   }).catch(e => {
-    console.log(JSON.stringify(e));
+    console.log(e);
   });
   return null;
 }
@@ -148,7 +148,7 @@ export async function queryStakingDelegations(LCD_ENDPOINT: string, delegatorAdd
     }).then(res => {
       console.log(JSON.stringify(res));
     }).catch(e => {
-      console.log(JSON.stringify(e));
+      console.log(e);
     });
   return null;
 }

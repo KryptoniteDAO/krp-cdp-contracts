@@ -133,22 +133,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "cdp_stable_pool"
-version = "0.0.1"
-dependencies = [
- "cdp",
- "cosmwasm-bignumber",
- "cosmwasm-schema",
- "cosmwasm-std",
- "cosmwasm-storage",
- "schemars",
- "sei-cosmwasm",
- "serde",
- "thiserror",
-]
-
-[[package]]
-name = "cdp_staking_reward"
+name = "cdp_reward_book"
 version = "0.0.1"
 dependencies = [
  "cdp",
@@ -159,6 +144,21 @@ dependencies = [
  "cw-storage-plus 0.13.4",
  "cw20",
  "schemars",
+ "serde",
+ "thiserror",
+]
+
+[[package]]
+name = "cdp_stable_pool"
+version = "0.0.1"
+dependencies = [
+ "cdp",
+ "cosmwasm-bignumber",
+ "cosmwasm-schema",
+ "cosmwasm-std",
+ "cosmwasm-storage",
+ "schemars",
+ "sei-cosmwasm",
  "serde",
  "thiserror",
 ]

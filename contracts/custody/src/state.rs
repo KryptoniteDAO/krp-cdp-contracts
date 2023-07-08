@@ -1,4 +1,19 @@
 
+// Copyright 2023 Kryptonite Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
 use cosmwasm_storage::{Singleton, ReadonlySingleton};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -19,7 +34,7 @@ pub struct Config {
     pub pool_contract: CanonicalAddr, 
     pub collateral_contract: CanonicalAddr,
     pub liquidation_contract: CanonicalAddr,
-    pub staking_reward_contract: CanonicalAddr,
+    pub reward_book_contract: CanonicalAddr,
 }
 
 

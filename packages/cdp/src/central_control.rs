@@ -1,3 +1,18 @@
+// Copyright 2023 Kryptonite Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+
 use cosmwasm_bignumber::{Decimal256, Uint256};
 use cosmwasm_std::{Uint128};
 use cosmwasm_schema::{cw_serde, QueryResponses};
@@ -73,7 +88,7 @@ pub enum ExecuteMsg {
         max_ltv: Decimal256,
         custody_contract: String,
         collateral_contract: String,
-        staking_reward_contract: String,
+        reward_book_contract: String,
     },
 }
 
@@ -151,7 +166,7 @@ pub struct WhitelistElemResponse {
     pub max_ltv: Decimal256,
     pub custody_contract: String,
     pub collateral_contract: String,
-    pub staking_reward_contract: String,
+    pub reward_book_contract: String,
 }
 
 // We define a custom struct for each query response

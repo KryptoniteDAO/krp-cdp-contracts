@@ -1,3 +1,17 @@
+// Copyright 2023 Kryptonite Labs.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 use cosmwasm_bignumber::Uint256;
 use cosmwasm_std::{ Uint128};
 use cw20::Cw20ReceiveMsg;
@@ -12,7 +26,7 @@ pub struct InstantiateMsg {
     pub pool_contract: String,
     pub collateral_contract: String,
     pub liquidation_contract: String,
-    pub staking_reward_contract: String,
+    pub reward_book_contract: String,
 }
 
 #[cw_serde]
@@ -23,7 +37,7 @@ pub enum ExecuteMsg {
         pool_contract: Option<String>,
         collateral_contract: Option<String>,
         liquidation_contract: Option<String>,
-        staking_reward_contract: Option<String>,
+        reward_book_contract: Option<String>,
     },
 
     /// Receive interface for send token.
@@ -45,6 +59,10 @@ pub enum ExecuteMsg {
     LiquidateCollateral {
         liquidator: String,
         amount: Uint128,
+    },
+
+    ClaimRewards {
+        reward_contract: String,
     }
 
 }
@@ -76,7 +94,7 @@ pub struct ConfigResponse {
     pub pool_contract: String, 
     pub collateral_contract: String,
     pub liquidation_contract: String,
-    pub staking_reward_contract: String,
+    pub reward_book_contract: String,
 }
 
 
