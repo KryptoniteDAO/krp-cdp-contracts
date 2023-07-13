@@ -1,5 +1,5 @@
 {
-  "contract_name": "cdp_central_control",
+  "contract_name": "cdp_reward_book",
   "contract_version": "0.0.1",
   "idl_version": "1.0.0",
   "instantiate": {

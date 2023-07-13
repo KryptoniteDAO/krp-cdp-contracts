@@ -40,6 +40,12 @@
                 "string",
                 "null"
               ]
+            },
+            "reward_book_contract": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "additionalProperties": false
@@ -131,6 +137,27 @@
               "$ref": "#/definitions/Uint128"
             },
             "liquidator": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "claim_rewards"
+      ],
+      "properties": {
+        "claim_rewards": {
+          "type": "object",
+          "required": [
+            "reward_contract"
+          ],
+          "properties": {
+            "reward_contract": {
               "type": "string"
             }
           },
