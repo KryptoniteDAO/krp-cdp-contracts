@@ -11,3 +11,7 @@ node_modules
 pnpm-lock.yaml
 */pnpm-lock.yaml
 deployment
+**/*/deployed_*.json
+*/common.ts
+*/test_staking_reward.ts
+*/test_integrated.ts
