@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ConfigResponse",
+  "type": "object",
+  "required": [
+    "control_contract",
+    "custody_contract",
+    "owner",
+    "reward_contract",
+    "reward_denom"
+  ],
+  "properties": {
+    "control_contract": {
+      "type": "string"
+    },
+    "custody_contract": {
+      "type": "string"
+    },
+    "owner": {
+      "type": "string"
+    },
+    "reward_contract": {
+      "type": "string"
+    },
+    "reward_denom": {
+      "type": "string"
+    }
+  },
+  "additionalProperties": false
+}
