@@ -52,6 +52,12 @@
                   "type": "null"
                 }
               ]
+            },
+            "stable_denom": {
+              "type": [
+                "string",
+                "null"
+              ]
             }
           },
           "additionalProperties": false
@@ -270,6 +276,7 @@
             "custody_contract",
             "max_ltv",
             "name",
+            "reward_book_contract",
             "symbol"
           ],
           "properties": {
@@ -283,6 +290,9 @@
               "$ref": "#/definitions/Decimal256"
             },
             "name": {
+              "type": "string"
+            },
+            "reward_book_contract": {
               "type": "string"
             },
             "symbol": {

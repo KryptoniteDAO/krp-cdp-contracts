@@ -11,7 +11,8 @@
       "control_contract",
       "liquidation_contract",
       "owner_addr",
-      "pool_contract"
+      "pool_contract",
+      "reward_book_contract"
     ],
     "properties": {
       "collateral_contract": {
@@ -28,6 +29,9 @@
         "type": "string"
       },
       "pool_contract": {
+        "type": "string"
+      },
+      "reward_book_contract": {
         "type": "string"
       }
     },
@@ -71,6 +75,12 @@
                 ]
               },
               "pool_contract": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "reward_book_contract": {
                 "type": [
                   "string",
                   "null"
@@ -173,6 +183,27 @@
           }
         },
         "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "claim_rewards"
+        ],
+        "properties": {
+          "claim_rewards": {
+            "type": "object",
+            "required": [
+              "reward_contract"
+            ],
+            "properties": {
+              "reward_contract": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
       }
     ],
     "definitions": {
@@ -251,7 +282,8 @@
         "control_contract",
         "liquidation_contract",
         "owner_addr",
-        "pool_contract"
+        "pool_contract",
+        "reward_book_contract"
       ],
       "properties": {
         "collateral_contract": {
@@ -267,6 +299,9 @@
           "type": "string"
         },
         "pool_contract": {
+          "type": "string"
+        },
+        "reward_book_contract": {
           "type": "string"
         }
       },

@@ -3,30 +3,26 @@
   "title": "ConfigResponse",
   "type": "object",
   "required": [
-    "collateral_contract",
     "control_contract",
-    "liquidation_contract",
-    "owner_addr",
-    "pool_contract",
-    "reward_book_contract"
+    "custody_contract",
+    "owner",
+    "reward_contract",
+    "reward_denom"
   ],
   "properties": {
-    "collateral_contract": {
-      "type": "string"
-    },
     "control_contract": {
       "type": "string"
     },
-    "liquidation_contract": {
+    "custody_contract": {
       "type": "string"
     },
-    "owner_addr": {
+    "owner": {
       "type": "string"
     },
-    "pool_contract": {
+    "reward_contract": {
       "type": "string"
     },
-    "reward_book_contract": {
+    "reward_denom": {
       "type": "string"
     }
   },

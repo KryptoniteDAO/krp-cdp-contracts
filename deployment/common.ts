@@ -55,7 +55,7 @@ function getContractAddressess(txResult: InstantiateResult, msgIndex = 0): [stri
 }
 
 export async function executeContract(RPC_ENDPOINT: string, wallet: DirectSecp256k1HdWallet, contractAddress: string, message: object, label: string, coins: Coin[]) {
-  const fee = calculateFee(2000000, "0.01usei");
+  const fee = calculateFee(2000000, "0.1usei");
   const [firstAccount] = await wallet.getAccounts();
   const signCosmWasmClient = await getSigningCosmWasmClient(RPC_ENDPOINT, wallet);
   const executeTxResult = await signCosmWasmClient.execute(firstAccount.address, contractAddress, message, fee, label, coins);

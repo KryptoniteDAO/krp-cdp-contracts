@@ -28,7 +28,7 @@ pub enum ContractError {
     #[error("No rewards have accrued yet")]
     NoRewardsHaveAccrued{},
    
-    #[error("Staking reward contract unauthorized calling function:{0}, params:{1}")]
+    #[error("reward book contract unauthorized calling function:{0}, params:{1}")]
     Unauthorized(String, String),
 
     #[error("Claim accrued reward less than threshold: {0}")]

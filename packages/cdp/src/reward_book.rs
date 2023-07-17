@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use cosmwasm_bignumber::Uint256;
-use cosmwasm_schema::cw_serde;
+use cosmwasm_schema::{cw_serde, QueryResponses};
 
 use cosmwasm_std::{Decimal, Uint128};
 
@@ -76,15 +76,21 @@ pub enum Cw20HookMsg {
 
 
 #[cw_serde]
+#[derive(QueryResponses)]
 pub enum QueryMsg {
+    #[returns(ConfigResponse)]
     Config {},
+    #[returns(StateResponse)]
     State {},
+    #[returns(AccruedRewardsResponse)]
     AccruedRewards {
         address: String,
     },
+    #[returns(HolderResponse)]
     Holder {
         address: String,
     },
+    #[returns(HoldersResponse)]
     Holders {
         start_after: Option<String>,
         limit: Option<u32>,

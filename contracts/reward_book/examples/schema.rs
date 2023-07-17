@@ -13,7 +13,7 @@
 // limitations under the License.
 use cosmwasm_schema::write_api;
 
-use cdp::central_control::{
+use cdp::reward_book::{
     InstantiateMsg, ExecuteMsg, QueryMsg,
 }; 
 
