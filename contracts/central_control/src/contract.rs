@@ -341,7 +341,7 @@ pub fn query_collateral_available(
             collateral_price = price_resp.emv_price;
             collateral_max_ltv = collateral_info.max_ltv;
         } else {
-            max_loans_value = collateral.1 * price_resp.emv_price * collateral_info.max_ltv;
+            max_loans_value += collateral.1 * price_resp.emv_price * collateral_info.max_ltv;
         }
     }
 
