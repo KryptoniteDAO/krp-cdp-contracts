@@ -390,7 +390,7 @@ pub fn execute_liquidation(
         ],
     })];
 
-    if bid_fee.is_zero() {
+    if !bid_fee.is_zero() {
         messages.push(CosmosMsg::Bank(BankMsg::Send {
             to_address: fee_address,
             amount: vec![
@@ -401,7 +401,7 @@ pub fn execute_liquidation(
             ],
         }));
     }
-    if liquidator_fee.is_zero() {
+    if !liquidator_fee.is_zero() {
         messages.push(CosmosMsg::Bank(BankMsg::Send {
             to_address: liquidator,
             amount: vec![
