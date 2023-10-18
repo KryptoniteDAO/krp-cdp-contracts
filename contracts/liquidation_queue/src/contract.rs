@@ -1,7 +1,7 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 
-use crate::asserts::{assert_fees, assert_max_slot, assert_max_slot_premium};
+use crate::asserts::{assert_fees, assert_max_slot, assert_max_slot_premium, assert_safe_ratio};
 use crate::bid::{activate_bids, claim_liquidations, execute_liquidation, retract_bid, submit_bid};
 use crate::query::{
     query_bid, query_bid_pool, query_bid_pools, query_bids_by_user, query_collateral_info,
@@ -243,6 +243,7 @@ pub fn update_config(
     }
 
     if let Some(safe_ratio) = safe_ratio {
+        assert_safe_ratio(safe_ratio)?;
         config.safe_ratio = safe_ratio;
     }
 
@@ -253,7 +254,6 @@ pub fn update_config(
     if let Some(liquidator_fee) = liquidator_fee {
         config.liquidator_fee = liquidator_fee;
     }
-    
     assert_fees(config.bid_fee + config.liquidator_fee)?;
 
     if let Some(liquidation_threshold) = liquidation_threshold {
