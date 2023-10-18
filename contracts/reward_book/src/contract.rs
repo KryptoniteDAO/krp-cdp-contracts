@@ -16,7 +16,7 @@ use cosmwasm_std::entry_point;
 
 use crate::error::ContractError;
 use crate::math::decimal_summation_in_256;
-use crate::state::{read_config, read_state, store_config, store_state, Config, State};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner};
 use crate::user::{
     execute_claim_rewards, execute_decrease_balance, execute_increase_balance,
     query_accrued_rewards, query_holder, query_holders,
@@ -72,7 +72,6 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::UpdateConfig {
-            owner_addr,
             control_contract,
             reward_contract,
             custody_contract,
@@ -83,7 +82,6 @@ pub fn execute(
             update_config(
                 deps,
                 info,
-                optional_addr_validate(api, owner_addr)?,
                 optional_addr_validate(api, control_contract)?,
                 optional_addr_validate(api, custody_contract)?,
                 optional_addr_validate(api, reward_contract)?,
@@ -91,6 +89,11 @@ pub fn execute(
                 threshold,
             )
         }
+        ExecuteMsg::SetOwner { new_owner_addr } => {
+            let api = deps.api;
+            set_new_owner(deps, info, api.addr_validate(&new_owner_addr)?)
+        }
+        ExecuteMsg::AcceptOwnership {} => accept_ownership(deps, info),
         ExecuteMsg::ClaimRewards { recipient } => execute_claim_rewards(deps, env, info, recipient),
         ExecuteMsg::UpdateGlobalIndex {} => update_global_index(deps, env, info),
         ExecuteMsg::IncreaseBalance { address, amount } => {
@@ -142,10 +145,47 @@ fn query_state(deps: Deps) -> StdResult<StateResponse> {
     })
 }
 
+
+pub fn set_new_owner(
+    deps: DepsMut,
+    info: MessageInfo,
+    new_owner_addr: Addr,
+) -> Result<Response, ContractError> {
+    let config = read_config(deps.as_ref().storage)?;
+    let mut new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    if sender_raw != config.owner {
+        return Err(ContractError::Unauthorized(
+            "set_new_owner".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+    new_owner.new_owner_addr = deps.api.addr_canonicalize(&new_owner_addr.to_string())?;
+    store_new_owner(deps.storage, &new_owner)?;
+
+    Ok(Response::default())
+}
+
+pub fn accept_ownership(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+    let new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    let mut config = read_config(deps.as_ref().storage)?;
+    if sender_raw != new_owner.new_owner_addr {
+        return Err(ContractError::Unauthorized(
+            "accept_ownership".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+
+    config.owner = new_owner.new_owner_addr;
+    store_config(deps.storage, &config)?;
+
+    Ok(Response::default())
+}
+
 fn update_config(
     deps: DepsMut,
     info: MessageInfo,
-    owner_addr: Option<Addr>,
     control_contract: Option<Addr>,
     custody_contract: Option<Addr>,
     reward_contract: Option<Addr>,
@@ -160,10 +200,6 @@ fn update_config(
             "update_config".to_string(),
             info.sender.to_string(),
         ));
-    }
-
-    if let Some(owner_addr) = owner_addr {
-        config.owner = deps.api.addr_canonicalize(owner_addr.as_str())?;
     }
 
     if let Some(control_contract) = control_contract {

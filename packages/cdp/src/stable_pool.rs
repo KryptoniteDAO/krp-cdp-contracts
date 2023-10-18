@@ -29,11 +29,17 @@ pub struct InstantiateMsg {
 pub enum ExecuteMsg {
 
     UpdateConfig {
-        owner_addr: Option<String>, 
         control_contract: Option<String>,
         min_redeem_value: Option<Uint256>,
     },
 
+    SetOwner {
+        new_owner_addr: String,
+    },
+
+    AcceptOwnership {
+    },
+    
     MintStableCoin {
         minter: String,
         stable_amount: Uint128,

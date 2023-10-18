@@ -23,6 +23,7 @@ use cosmwasm_std::{CanonicalAddr, StdResult, Storage};
 
 static KEY_CONFIG: &[u8] = b"config";
 static KEY_STATE: &[u8] = b"state";
+static KEY_NEWOWNER: &[u8] = b"newowner";
 
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
@@ -40,6 +41,11 @@ pub struct State {
 
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct NewOwnerAddr {
+    pub new_owner_addr: CanonicalAddr, 
+}
+
 pub fn store_config(storage: &mut dyn Storage, data: &Config) -> StdResult<()> {
     Singleton::new(storage, KEY_CONFIG).save(data)
 }
@@ -54,4 +60,12 @@ pub fn store_state(storage: &mut dyn Storage, data: &State) -> StdResult<()> {
 
 pub fn read_state(storage: &dyn Storage) -> StdResult<State> {
     ReadonlySingleton::new(storage, KEY_STATE).load()
+}
+
+pub fn store_new_owner(storage: &mut dyn Storage, data: &NewOwnerAddr) -> StdResult<()> {
+    Singleton::new(storage, KEY_NEWOWNER).save(data)
+}
+
+pub fn read_new_owner(storage: &dyn Storage) -> StdResult<NewOwnerAddr> {
+    ReadonlySingleton::new(storage, KEY_NEWOWNER).load()
 }
