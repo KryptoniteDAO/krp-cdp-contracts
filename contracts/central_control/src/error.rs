@@ -54,4 +54,7 @@ pub enum ContractError {
 
     #[error("Functionality deprecated")]
     Deprecated {},
+
+    #[error("Max ltv exceeds limit")]
+    MaxLtvExceedsLimit {}, 
 }
