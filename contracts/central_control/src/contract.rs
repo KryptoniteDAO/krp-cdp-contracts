@@ -54,6 +54,7 @@ pub fn instantiate(
         oracle_contract: api.addr_canonicalize(&msg.oracle_contract.as_str())?,
         pool_contract: api.addr_canonicalize(&msg.pool_contract.as_str())?,
         liquidation_contract: api.addr_canonicalize(&msg.liquidation_contract.as_str())?,
+        custody_contract: api.addr_canonicalize(&msg.custody_contract.as_str())?,
         epoch_period: msg.epoch_period,
         redeem_fee: msg.redeem_fee,
         stable_denom: msg.stable_denom,
@@ -509,7 +510,7 @@ pub fn update_config(
 
 pub fn mint_stable_coin(
     deps: DepsMut,
-    _info: MessageInfo,
+    info: MessageInfo,
     minter: String,
     stable_amount: Uint128,
     collateral_amount: Option<Uint128>,
@@ -518,6 +519,14 @@ pub fn mint_stable_coin(
 ) -> Result<Response, ContractError> {
     let config = read_config(deps.as_ref().storage)?;
     let api = deps.api;
+    let sender_raw = api.addr_canonicalize(info.sender.as_str())?;
+    
+    if sender_raw != config.custody_contract {
+        return Err(ContractError::Unauthorized(
+            "mint_stable_coin".to_string(),
+            info.sender.to_string(),
+        ));
+    }
 
     let minter_raw = api.addr_canonicalize(minter.as_str())?;
     let mut cur_collaterals: Tokens = read_collaterals(deps.storage, &minter_raw);
@@ -868,6 +877,7 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
             .api
             .addr_humanize(&config.liquidation_contract)?
             .to_string(),
+            custody_contract: deps.api.addr_humanize(&config.custody_contract)?.to_string(),
         stable_denom: config.stable_denom,
         epoch_period: config.epoch_period,
         redeem_fee: config.redeem_fee,
