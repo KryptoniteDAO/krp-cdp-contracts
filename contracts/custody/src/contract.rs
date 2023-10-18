@@ -391,11 +391,21 @@ pub fn claim_rewards(
 
 pub fn liquidate_collateral(
     deps: DepsMut,
-    _info: MessageInfo,
+    info: MessageInfo,
     liquidator: Addr,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
     let config = read_config(deps.storage)?;
+
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+
+    //only control contract is allowed to call 
+    if sender_raw != config.control_contract {
+       return Err(ContractError::Unauthorized(
+            "liquidate_collateral".to_string(),
+            info.sender.clone().to_string(),
+        ));
+    }
 
     let mut state = read_state(deps.storage)?;
     state.total_amount = state.total_amount - Uint256::from(amount);
