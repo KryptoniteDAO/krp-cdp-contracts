@@ -28,7 +28,8 @@ pub fn instantiate(
     msg: InstantiateMsg,
 ) -> StdResult<Response> {
     assert_fees(msg.liquidator_fee + msg.bid_fee)?;
-
+    assert_safe_ratio(msg.safe_ratio)?;
+    
     store_config(
         deps.storage,
         &Config {
