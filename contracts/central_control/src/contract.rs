@@ -570,7 +570,6 @@ pub fn mint_stable_coin(
         }
     }
 
-    let mut collaterals_values = Uint256::zero();
     let mut max_loan_to_value = Uint256::zero();
 
     for collateral in cur_collaterals {
@@ -581,10 +580,10 @@ pub fn mint_stable_coin(
             "".to_string(),
             None,
         )?;
-        collaterals_values += Uint256::from(collateral.1) * price.emv_price;
+        let collaterals_value = Uint256::from(collateral.1) * price.emv_price;
 
         let collateral_info = read_whitelist_elem(deps.storage, &collateral.0)?;
-        max_loan_to_value += collaterals_values * collateral_info.max_ltv;
+        max_loan_to_value += collaterals_value * collateral_info.max_ltv;
     }
 
     let mut minter_loans_info = read_minter_loan_info(deps.storage, &minter_raw)?;
