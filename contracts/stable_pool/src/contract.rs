@@ -220,6 +220,14 @@ pub fn repay_stable_from_liquidation(
 ) -> Result<Response<SeiMsg>, ContractError> {
     let config = read_config(deps.storage)?;
 
+    let send_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    if send_raw != config.control_contract {
+               return Err(ContractError::Unauthorized(
+            "repay_stable_from_liquidation".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+
     let cur_balance: Uint256 = query_balance(
         deps.as_ref(),
         env.contract.address.clone(),
