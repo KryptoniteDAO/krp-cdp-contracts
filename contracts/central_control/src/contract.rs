@@ -59,6 +59,11 @@ pub fn instantiate(
         redeem_fee: msg.redeem_fee,
         stable_denom: msg.stable_denom,
     };
+
+    if msg.redeem_fee >= Decimal256::one() {
+        return Err(ContractError::RedeemFeeExceedsLimit {});
+    }
+
     store_config(deps.storage, &config)?;
 
     Ok(Response::default())
@@ -536,6 +541,9 @@ pub fn update_config(
     }
 
     if let Some(redeem_fee) = redeem_fee {
+        if redeem_fee >= Decimal256::one() {
+            return Err(ContractError::RedeemFeeExceedsLimit {});
+        }
         config.redeem_fee = redeem_fee;
     }
 
@@ -888,9 +896,9 @@ pub fn whitelist_collateral(
     }
 
     if max_ltv >= Decimal256::one() {
-        return Err(ContractError::MaxLtvExceedsLimit{});
+        return Err(ContractError::MaxLtvExceedsLimit {});
     }
-   
+
     let data = WhitelistElem {
         name,
         symbol,
