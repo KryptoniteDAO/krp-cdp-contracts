@@ -56,6 +56,7 @@ pub struct Config {
     pub pool_contract: CanonicalAddr,
     pub liquidation_contract: CanonicalAddr,
     pub stable_denom: String,
+    pub custody_contract: CanonicalAddr, 
     //The distribution period after the staking revenue from the chain,
     pub epoch_period: u64,
     pub redeem_fee: Decimal256,
