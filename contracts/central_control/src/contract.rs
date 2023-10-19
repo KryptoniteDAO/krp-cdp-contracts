@@ -609,10 +609,20 @@ pub fn mint_stable_coin(
 
 pub fn repay_stable_coin(
     deps: DepsMut,
-    _info: MessageInfo,
+    info: MessageInfo,
     sender: String,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
+
+    let config = read_config(deps.storage)?;
+    let api = deps.api;
+    if api.addr_canonicalize(info.sender.as_str())? != config.pool_contract {
+        return Err(ContractError::Unauthorized(
+            "repay_stable_coin".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+
     let minter_raw = deps.api.addr_canonicalize(&sender.as_str())?;
     let mut loan_info = read_minter_loan_info(deps.storage, &minter_raw)?;
     loan_info.loans = loan_info.loans - Uint256::from(amount);
