@@ -57,4 +57,7 @@ pub enum ContractError {
 
     #[error("Max ltv exceeds limit")]
     MaxLtvExceedsLimit {}, 
+
+    #[error("Redeem fee exceeds limit")]
+    RedeemFeeExceedsLimit {}, 
 }
