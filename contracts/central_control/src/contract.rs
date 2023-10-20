@@ -522,10 +522,12 @@ pub fn mint_stable_coin(
     let sender_raw = api.addr_canonicalize(info.sender.as_str())?;
     
     if sender_raw != config.custody_contract {
-        return Err(ContractError::Unauthorized(
-            "mint_stable_coin".to_string(),
-            info.sender.to_string(),
-        ));
+        if info.sender.to_string() != minter {
+            return Err(ContractError::Unauthorized(
+                "mint_stable_coin".to_string(),
+                info.sender.to_string(),
+            ));
+        }
     }
 
     let minter_raw = api.addr_canonicalize(minter.as_str())?;
