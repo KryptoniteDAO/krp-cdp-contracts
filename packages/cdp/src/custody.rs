@@ -32,7 +32,6 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     UpdateConfig {
-        owner_addr: Option<String>,
         control_contract: Option<String>,
         pool_contract: Option<String>,
         collateral_contract: Option<String>,
@@ -40,6 +39,13 @@ pub enum ExecuteMsg {
         reward_book_contract: Option<String>,
     },
 
+    SetOwner {
+        new_owner_addr: String,
+    },
+
+    AcceptOwnership {
+    },
+    
     /// Receive interface for send token.
     /// deposit collateral token denom.
     /// mint kUSD token.

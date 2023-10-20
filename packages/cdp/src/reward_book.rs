@@ -32,13 +32,20 @@ pub enum ExecuteMsg {
     /// Owner's operations
     ///////////////////
     UpdateConfig {
-        owner_addr: Option<String>,
         control_contract: Option<String>, 
         reward_contract: Option<String>,
         custody_contract: Option<String>,
         reward_denom: Option<String>,
         threshold: Option<Uint256>,
     },
+
+    SetOwner {
+        new_owner_addr: String,
+    },
+
+    AcceptOwnership {
+    },
+    
 
     ////////////////////
     /// bAsset's operations

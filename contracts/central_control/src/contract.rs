@@ -14,9 +14,9 @@
 
 use crate::error::ContractError;
 use crate::state::{
-    read_collaterals, read_config, read_minter_loan_info, read_redemeption_list, read_whitelist,
-    read_whitelist_elem, store_collaterals, store_config, store_minter_loan_info,
-    store_whitelist_elem, Config, WhitelistElem,
+    read_collaterals, read_config, read_minter_loan_info, read_new_owner, read_redemeption_list,
+    read_whitelist, read_whitelist_elem, store_collaterals, store_config, store_minter_loan_info,
+    store_new_owner, store_whitelist_elem, Config, WhitelistElem,
 };
 use cdp::central_control::{
     CollateralAvailableRespone, ConfigResponse, ExecuteMsg, InstantiateMsg, LoanInfoResponse,
@@ -73,7 +73,6 @@ pub fn execute(
 ) -> Result<Response, ContractError> {
     match msg {
         ExecuteMsg::UpdateConfig {
-            owner_addr,
             oracle_contract,
             pool_contract,
             liquidation_contract,
@@ -85,7 +84,6 @@ pub fn execute(
             update_config(
                 deps,
                 info,
-                optional_addr_validate(api, owner_addr)?,
                 optional_addr_validate(api, oracle_contract)?,
                 optional_addr_validate(api, pool_contract)?,
                 optional_addr_validate(api, liquidation_contract)?,
@@ -94,6 +92,11 @@ pub fn execute(
                 redeem_fee,
             )
         }
+        ExecuteMsg::SetOwner { new_owner_addr } => {
+            let api = deps.api;
+            set_new_owner(deps, info, api.addr_validate(&new_owner_addr)?)
+        }
+        ExecuteMsg::AcceptOwnership {} => accept_ownership(deps, info),
         ExecuteMsg::RepayStableCoin { sender, amount } => {
             repay_stable_coin(deps, info, sender, amount)
         }
@@ -455,10 +458,46 @@ pub fn deposit_collateral(
         ]))
 }
 
+pub fn set_new_owner(
+    deps: DepsMut,
+    info: MessageInfo,
+    new_owner_addr: Addr,
+) -> Result<Response, ContractError> {
+    let config = read_config(deps.as_ref().storage)?;
+    let mut new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    if sender_raw != config.owner_addr {
+        return Err(ContractError::Unauthorized(
+            "set_new_owner".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+    new_owner.new_owner_addr = deps.api.addr_canonicalize(&new_owner_addr.to_string())?;
+    store_new_owner(deps.storage, &new_owner)?;
+
+    Ok(Response::default())
+}
+
+pub fn accept_ownership(deps: DepsMut, info: MessageInfo) -> Result<Response, ContractError> {
+    let new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    let mut config = read_config(deps.as_ref().storage)?;
+    if sender_raw != new_owner.new_owner_addr {
+        return Err(ContractError::Unauthorized(
+            "accept_ownership".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+
+    config.owner_addr = new_owner.new_owner_addr;
+    store_config(deps.storage, &config)?;
+
+    Ok(Response::default())
+}
+
 pub fn update_config(
     deps: DepsMut,
     info: MessageInfo,
-    owner_addr: Option<Addr>,
     oracle_contract: Option<Addr>,
     pool_contract: Option<Addr>,
     liquidation_contract: Option<Addr>,
@@ -474,10 +513,6 @@ pub fn update_config(
             "update_config".to_string(),
             info.sender.to_string(),
         ));
-    }
-
-    if let Some(owner_addr) = owner_addr {
-        config.owner_addr = deps.api.addr_canonicalize(owner_addr.as_str())?
     }
 
     if let Some(oracle_contact) = oracle_contract {
@@ -520,7 +555,7 @@ pub fn mint_stable_coin(
     let config = read_config(deps.as_ref().storage)?;
     let api = deps.api;
     let sender_raw = api.addr_canonicalize(info.sender.as_str())?;
-    
+
     if sender_raw != config.custody_contract {
         if info.sender.to_string() != minter {
             return Err(ContractError::Unauthorized(
@@ -536,11 +571,9 @@ pub fn mint_stable_coin(
     let mut messages: Vec<CosmosMsg> = vec![];
 
     if let Some(collateral_contract) = collateral_contract {
-       
         if let Some(collateral_amount) = collateral_amount {
-
             if collateral_amount <= Uint128::zero() {
-                return Err(ContractError::CollateralAmountMustGreaterThanZero{});
+                return Err(ContractError::CollateralAmountMustGreaterThanZero {});
             }
 
             let collateral_contract_raw = api.addr_canonicalize(&collateral_contract)?;
@@ -566,9 +599,8 @@ pub fn mint_stable_coin(
                 })?,
                 funds: vec![],
             }));
-        }
-        else {
-            return Err(ContractError::CollateralAmountMustBeProvided{});
+        } else {
+            return Err(ContractError::CollateralAmountMustBeProvided {});
         }
     }
 
@@ -623,7 +655,6 @@ pub fn repay_stable_coin(
     sender: String,
     amount: Uint128,
 ) -> Result<Response, ContractError> {
-
     let config = read_config(deps.storage)?;
     let api = deps.api;
     if api.addr_canonicalize(info.sender.as_str())? != config.pool_contract {
@@ -878,7 +909,10 @@ pub fn query_config(deps: Deps) -> StdResult<ConfigResponse> {
             .api
             .addr_humanize(&config.liquidation_contract)?
             .to_string(),
-            custody_contract: deps.api.addr_humanize(&config.custody_contract)?.to_string(),
+        custody_contract: deps
+            .api
+            .addr_humanize(&config.custody_contract)?
+            .to_string(),
         stable_denom: config.stable_denom,
         epoch_period: config.epoch_period,
         redeem_fee: config.redeem_fee,

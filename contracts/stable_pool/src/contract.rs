@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use crate::state::{read_config, read_state, store_config, store_state, Config, State};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner};
 use cdp::querier::{query_balance, query_control_loan_info};
 use cosmwasm_bignumber::Uint256;
 #[cfg(not(feature = "library"))]
@@ -71,7 +71,6 @@ pub fn execute(
 ) -> Result<Response<SeiMsg>, ContractError> {
     match msg {
         ExecuteMsg::UpdateConfig {
-            owner_addr,
             control_contract,
             min_redeem_value,
         } => {
@@ -79,11 +78,15 @@ pub fn execute(
             update_config(
                 deps,
                 info,
-                optional_addr_validate(api, owner_addr)?,
                 optional_addr_validate(api, control_contract)?,
                 min_redeem_value,
             )
+        }    
+        ExecuteMsg::SetOwner { new_owner_addr } => {
+            let api = deps.api;
+            set_new_owner(deps, info, api.addr_validate(&new_owner_addr)?)
         }
+        ExecuteMsg::AcceptOwnership {} => accept_ownership(deps, info),
 
         ExecuteMsg::MintStableCoin {
             minter,
@@ -112,10 +115,48 @@ pub fn execute(
     }
 }
 
+pub fn set_new_owner(
+    deps: DepsMut,
+    info: MessageInfo,
+    new_owner_addr: Addr,
+) -> Result<Response<SeiMsg>, ContractError>  {
+    let config = read_config(deps.as_ref().storage)?;
+    let mut new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    if sender_raw != config.owner_addr {
+        return Err(ContractError::Unauthorized(
+            "set_new_owner".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+    new_owner.new_owner_addr = deps.api.addr_canonicalize(&new_owner_addr.to_string())?;
+    store_new_owner(deps.storage, &new_owner)?;
+
+    Ok(Response::default())
+}
+
+pub fn accept_ownership(deps: DepsMut, info: MessageInfo) -> Result<Response<SeiMsg>, ContractError>  {
+    let new_owner = read_new_owner(deps.as_ref().storage)?;
+    let sender_raw = deps.api.addr_canonicalize(&info.sender.to_string())?;
+    let mut config = read_config(deps.as_ref().storage)?;
+    if sender_raw != new_owner.new_owner_addr {
+        return Err(ContractError::Unauthorized(
+            "accept_ownership".to_string(),
+            info.sender.to_string(),
+        ));
+    }
+
+    config.owner_addr = new_owner.new_owner_addr;
+    store_config(deps.storage, &config)?;
+
+    Ok(Response::default())
+}
+
+
+
 pub fn update_config(
     deps: DepsMut,
     info: MessageInfo,
-    owner_addr: Option<Addr>,
     control_contract: Option<Addr>,
     min_redeem_value: Option<Uint256>,
 ) -> Result<Response<SeiMsg>, ContractError> {
@@ -127,10 +168,6 @@ pub fn update_config(
             "update_config".to_string(),
             info.sender.to_string(),
         ));
-    }
-
-    if let Some(owner_addr) = owner_addr {
-        config.owner_addr = deps.api.addr_canonicalize(owner_addr.as_str())?;
     }
 
     if let Some(control_contract) = control_contract {

@@ -28,6 +28,7 @@ const KEY_STATE: &[u8] = b"state";
 const PREFIX_WHITELISTELEM: &[u8] = b"whitelistelem";
 const PREFIX_COLLATERALS: &[u8] = b"collateral";
 const PREFIX_LOANINFO: &[u8] = b"loan";
+const KEY_NEWOWNER: &[u8] = b"newowner";
 
 // settings for pagination
 const MAX_LIMIT: u32 = 30;
@@ -62,6 +63,12 @@ pub struct Config {
     pub redeem_fee: Decimal256,
 }
 
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct NewOwnerAddr {
+    pub new_owner_addr: CanonicalAddr, 
+}
+
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct MinterLoanInfo {
     pub minter: CanonicalAddr,
@@ -75,6 +82,15 @@ pub fn store_config(storage: &mut dyn Storage, data: &Config) -> StdResult<()> {
 
 pub fn read_config(storage: &dyn Storage) -> StdResult<Config> {
     ReadonlySingleton::new(storage, KEY_CONFIG).load()
+}
+
+
+pub fn store_new_owner(storage: &mut dyn Storage, data: &NewOwnerAddr) -> StdResult<()> {
+    Singleton::new(storage, KEY_NEWOWNER).save(data)
+}
+
+pub fn read_new_owner(storage: &dyn Storage) -> StdResult<NewOwnerAddr> {
+    ReadonlySingleton::new(storage, KEY_NEWOWNER).load()
 }
 
 pub fn store_state(storage: &mut dyn Storage, data: &State) -> StdResult<()> {

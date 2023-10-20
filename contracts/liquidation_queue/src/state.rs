@@ -14,6 +14,7 @@ static PREFIX_BID_POOL_BY_COLLATERAL: &[u8] = b"bid_pool_by_col";
 static PREFIX_TOTAL_BIDS_BY_COLLATERAL: &[u8] = b"total_bids_by_col";
 static PREFIX_COLLATERAL_INFO: &[u8] = b"col_info";
 static PREFIX_EPOCH_SCALE_SUM: &[u8] = b"epoch_scale_sum";
+static KEY_NEWOWNER: &[u8] = b"newowner";
 
 const MAX_LIMIT: u8 = 31;
 const DEFAULT_LIMIT: u8 = 10;
@@ -32,12 +33,26 @@ pub struct Config {
     pub control_contract: CanonicalAddr,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct NewOwnerAddr {
+    pub new_owner_addr: CanonicalAddr, 
+}
+
+
 pub fn store_config(storage: &mut dyn Storage, config: &Config) -> StdResult<()> {
     singleton(storage, KEY_CONFIG).save(config)
 }
 
 pub fn read_config(storage: &dyn Storage) -> StdResult<Config> {
     singleton_read(storage, KEY_CONFIG).load()
+}
+
+pub fn store_new_owner(storage: &mut dyn Storage, data: &NewOwnerAddr) -> StdResult<()> {
+    singleton(storage, KEY_NEWOWNER).save(data)
+}
+
+pub fn read_new_owner(storage: &dyn Storage) -> StdResult<NewOwnerAddr> {
+    singleton_read(storage, KEY_NEWOWNER).load()
 }
 
 pub fn pop_bid_idx(storage: &mut dyn Storage) -> StdResult<Uint128> {

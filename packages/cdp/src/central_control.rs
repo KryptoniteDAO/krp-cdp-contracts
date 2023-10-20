@@ -35,7 +35,6 @@ pub struct InstantiateMsg {
 #[cw_serde]
 pub enum ExecuteMsg {
     UpdateConfig {
-        owner_addr: Option<String>,
         oracle_contract: Option<String>,
         pool_contract: Option<String>,
         liquidation_contract: Option<String>,
@@ -44,6 +43,12 @@ pub enum ExecuteMsg {
         redeem_fee: Option<Decimal256>,
     },
 
+    SetOwner {
+        new_owner_addr: String,
+    },
+
+    AcceptOwnership {
+    },
     ///mint stable coin kUSD call by custody contract.
     MintStableCoin {
         minter: String,
