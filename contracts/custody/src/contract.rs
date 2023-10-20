@@ -273,7 +273,7 @@ pub fn withdraw_collateral(
 
 pub fn mint_stable_coin(
     deps: DepsMut,
-    _info: MessageInfo,
+    info: MessageInfo,
     sender: String,
     amount: Uint128,
     stable_amount: Uint128,
@@ -282,6 +282,15 @@ pub fn mint_stable_coin(
     let config = read_config(deps.as_ref().storage)?;
     let api = deps.api;
     let control_contract = api.addr_humanize(&config.control_contract)?.to_string();
+
+    if info.sender.to_string()
+        != deps
+            .api
+            .addr_humanize(&config.collateral_contract)?
+            .to_string()
+    {
+        return Err(ContractError::CollateralTypeError {});
+    }
 
     let mut state = read_state(deps.as_ref().storage)?;
     state.total_amount = state.total_amount + Uint256::from(amount);
