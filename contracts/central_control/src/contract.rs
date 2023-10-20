@@ -239,7 +239,7 @@ pub fn migrate(_deps: DepsMut, _env: Env, _msg: MigrateMsg) -> StdResult<Respons
 
 pub fn liquidate_collateral(
     deps: DepsMut,
-    env: Env,
+    _env: Env,
     info: MessageInfo,
     minter: Addr,
 ) -> Result<Response, ContractError> {
@@ -255,7 +255,7 @@ pub fn liquidate_collateral(
     }
     let pre_balance: Uint256 = query_balance(
         deps.as_ref(),
-        env.contract.address.clone(),
+        deps.api.addr_humanize(&config.pool_contract)?,
         config.stable_denom.to_string(),
     )?;
     let collateral_prices = query_collateral_prices(
