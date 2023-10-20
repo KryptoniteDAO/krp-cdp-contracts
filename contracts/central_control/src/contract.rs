@@ -887,6 +887,10 @@ pub fn whitelist_collateral(
         ));
     }
 
+    if max_ltv >= Decimal256::one() {
+        return Err(ContractError::MaxLtvExceedsLimit{});
+    }
+   
     let data = WhitelistElem {
         name,
         symbol,
