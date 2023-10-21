@@ -299,7 +299,17 @@ pub fn liquidate_collateral(
                     liquidator: info.sender.to_string(),
                     amount: collateral.1.into(),
                 })?,
-            }))
+            }));
+            liquidation_messages.push(CosmosMsg::Wasm(WasmMsg::Execute {
+                contract_addr: deps.api
+                    .addr_humanize(&whitelist_elem.reward_book_contract)?
+                    .to_string(),
+                msg: to_binary(&RewardBookExecuteMsg::DecreaseBalance {
+                    address: minter.to_string(),
+                    amount: collateral.1.into(),
+                })?,
+                funds: vec![],
+            }));
         }
     }
 
