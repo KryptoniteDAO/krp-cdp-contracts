@@ -154,12 +154,6 @@
                   "null"
                 ]
               },
-              "owner": {
-                "type": [
-                  "string",
-                  "null"
-                ]
-              },
               "price_timeframe": {
                 "type": [
                   "integer",
@@ -193,6 +187,40 @@
                 "minimum": 0.0
               }
             },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "set_owner"
+        ],
+        "properties": {
+          "set_owner": {
+            "type": "object",
+            "required": [
+              "new_owner_addr"
+            ],
+            "properties": {
+              "new_owner_addr": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      },
+      {
+        "type": "object",
+        "required": [
+          "accept_ownership"
+        ],
+        "properties": {
+          "accept_ownership": {
+            "type": "object",
             "additionalProperties": false
           }
         },
@@ -387,44 +415,6 @@
                 }
               },
               "collateral_token": {
-                "type": "string"
-              }
-            },
-            "additionalProperties": false
-          }
-        },
-        "additionalProperties": false
-      },
-      {
-        "description": "after receive collateral asset denom forms execute bid",
-        "type": "object",
-        "required": [
-          "execute_bid"
-        ],
-        "properties": {
-          "execute_bid": {
-            "type": "object",
-            "required": [
-              "amount",
-              "collateral_denom",
-              "fee_address",
-              "liquidator",
-              "repay_address"
-            ],
-            "properties": {
-              "amount": {
-                "$ref": "#/definitions/Uint256"
-              },
-              "collateral_denom": {
-                "type": "string"
-              },
-              "fee_address": {
-                "type": "string"
-              },
-              "liquidator": {
-                "type": "string"
-              },
-              "repay_address": {
                 "type": "string"
               }
             },

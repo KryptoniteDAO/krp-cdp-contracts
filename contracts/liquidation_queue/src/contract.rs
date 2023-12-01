@@ -8,7 +8,7 @@ use crate::query::{
     query_config, query_liquidation_amount,
 };
 use crate::state::{
-    read_collateral_info, read_config, store_collateral_info, store_config, CollateralInfo, Config, read_new_owner, store_new_owner,
+    read_collateral_info, read_config, store_collateral_info, store_config, CollateralInfo, Config, read_new_owner, store_new_owner, NewOwnerAddr,
 };
 use cdp::querier::query_collateral_whitelist_info;
 
@@ -45,6 +45,12 @@ pub fn instantiate(
             control_contract: deps.api.addr_canonicalize(&msg.control_contract)?,
         },
     )?;
+    
+    store_new_owner(deps.storage, &{
+        NewOwnerAddr {
+            new_owner_addr: deps.api.addr_canonicalize(&msg.owner)?,
+        }
+    })?;
 
     Ok(Response::new())
 }

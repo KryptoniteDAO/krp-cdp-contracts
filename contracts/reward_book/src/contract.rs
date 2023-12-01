@@ -16,7 +16,7 @@ use cosmwasm_std::entry_point;
 
 use crate::error::ContractError;
 use crate::math::decimal_summation_in_256;
-use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner, NewOwnerAddr};
 use crate::user::{
     execute_claim_rewards, execute_decrease_balance, execute_increase_balance,
     query_accrued_rewards, query_holder, query_holders,
@@ -59,6 +59,13 @@ pub fn instantiate(
             prev_reward_balance: Uint128::zero(),
         },
     )?;
+    
+    store_new_owner(deps.storage, &{
+        NewOwnerAddr {
+            new_owner_addr: deps.api.addr_canonicalize(&info.sender.to_string())?,
+        }
+    })?;
+    
 
     Ok(Response::default())
 }

@@ -23,7 +23,7 @@ use cw20::{Cw20ExecuteMsg, Cw20ReceiveMsg};
 use std::vec;
 
 use crate::error::ContractError;
-use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner, NewOwnerAddr};
 use cdp::central_control::ExecuteMsg as ControlExecuteMsg;
 use cdp::custody::{
     ConfigResponse, Cw20HookMsg, ExecuteMsg, InstantiateMsg, MigrateMsg, QueryMsg, StateResponse,
@@ -54,6 +54,12 @@ pub fn instantiate(
             total_amount: Uint256::zero(),
         },
     )?;
+
+    store_new_owner(deps.storage, &{
+        NewOwnerAddr {
+            new_owner_addr: config.owner_addr.clone(),
+        }
+    })?;
 
     Ok(Response::default())
 }

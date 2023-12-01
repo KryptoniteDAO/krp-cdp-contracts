@@ -11,6 +11,12 @@
         "update_config": {
           "type": "object",
           "properties": {
+            "custody_contract": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
             "epoch_period": {
               "type": [
                 "integer",
@@ -26,12 +32,6 @@
               ]
             },
             "oracle_contract": {
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "owner_addr": {
               "type": [
                 "string",
                 "null"
@@ -60,6 +60,40 @@
               ]
             }
           },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "set_owner"
+      ],
+      "properties": {
+        "set_owner": {
+          "type": "object",
+          "required": [
+            "new_owner_addr"
+          ],
+          "properties": {
+            "new_owner_addr": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    {
+      "type": "object",
+      "required": [
+        "accept_ownership"
+      ],
+      "properties": {
+        "accept_ownership": {
+          "type": "object",
           "additionalProperties": false
         }
       },

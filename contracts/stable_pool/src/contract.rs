@@ -11,7 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner};
+use crate::state::{read_config, read_state, store_config, store_state, Config, State, read_new_owner, store_new_owner, NewOwnerAddr};
 use cdp::querier::{query_balance, query_control_loan_info};
 use cosmwasm_bignumber::Uint256;
 #[cfg(not(feature = "library"))]
@@ -58,6 +58,12 @@ pub fn instantiate(
         total_supply: Uint256::zero(),
     };
     store_state(deps.storage, &state)?;
+
+    store_new_owner(deps.storage, &{
+        NewOwnerAddr {
+            new_owner_addr:  deps.api.addr_canonicalize(&msg.owner_addr.as_str())?,
+        }
+    })?;
 
     Ok(Response::new().add_message(create_stable_denom))
 }

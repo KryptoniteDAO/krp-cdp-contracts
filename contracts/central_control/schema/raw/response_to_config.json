@@ -3,6 +3,7 @@
   "title": "ConfigResponse",
   "type": "object",
   "required": [
+    "custody_contract",
     "epoch_period",
     "liquidation_contract",
     "oracle_contract",
@@ -12,6 +13,9 @@
     "stable_denom"
   ],
   "properties": {
+    "custody_contract": {
+      "type": "string"
+    },
     "epoch_period": {
       "type": "integer",
       "format": "uint64",

@@ -16,7 +16,7 @@ use crate::error::ContractError;
 use crate::state::{
     read_collaterals, read_config, read_minter_loan_info, read_new_owner, read_redemeption_list,
     read_whitelist, read_whitelist_elem, store_collaterals, store_config, store_minter_loan_info,
-    store_new_owner, store_whitelist_elem, Config, WhitelistElem,
+    store_new_owner, store_whitelist_elem, Config, WhitelistElem, NewOwnerAddr,
 };
 use cdp::central_control::{
     CollateralAvailableRespone, ConfigResponse, ExecuteMsg, InstantiateMsg, LoanInfoResponse,
@@ -65,6 +65,12 @@ pub fn instantiate(
     }
 
     store_config(deps.storage, &config)?;
+    
+    store_new_owner(deps.storage, &{
+        NewOwnerAddr {
+            new_owner_addr: config.owner_addr.clone(),
+        }
+    })?;
 
     Ok(Response::default())
 }
@@ -81,6 +87,7 @@ pub fn execute(
             oracle_contract,
             pool_contract,
             liquidation_contract,
+            custody_contract,
             stable_denom,
             epoch_period,
             redeem_fee,
@@ -92,6 +99,7 @@ pub fn execute(
                 optional_addr_validate(api, oracle_contract)?,
                 optional_addr_validate(api, pool_contract)?,
                 optional_addr_validate(api, liquidation_contract)?,
+                optional_addr_validate(api, custody_contract)?,
                 stable_denom,
                 epoch_period,
                 redeem_fee,
@@ -516,6 +524,7 @@ pub fn update_config(
     oracle_contract: Option<Addr>,
     pool_contract: Option<Addr>,
     liquidation_contract: Option<Addr>,
+    custody_contract: Option<Addr>,
     stable_denom: Option<String>,
     epoch_period: Option<u64>,
     redeem_fee: Option<Decimal256>,
@@ -540,6 +549,10 @@ pub fn update_config(
 
     if let Some(liquidation_contract) = liquidation_contract {
         config.liquidation_contract = deps.api.addr_canonicalize(liquidation_contract.as_str())?;
+    }
+
+    if let Some(custody_contract) = custody_contract {
+        config.custody_contract = deps.api.addr_canonicalize(custody_contract.as_str())?;
     }
 
     if let Some(stable_denom) = stable_denom {
